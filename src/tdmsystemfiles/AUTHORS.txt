@@ -1,0 +1,100 @@
+// Do not remove this line: vim:ts=4:sw=4:cindent
+
+For licensing terms, see the file LICENSE.txt. These are the copyright holders of
+The Dark Mod, in alphabetical order:
+
+	AluminumHaste					<derick.boe@gmail.com>
+	angua							<birgit@angua.at>
+	Arcturus
+	ascottk							<ascottk@comcast.net>
+	Baddcog							<schwaa11@hotmail.com>
+	Briareos H						<faelnor@gmail.com>
+	Matthias Baumann (greebo)		<greebo@angua.at>
+	BlackThief						<BlackThief@gmx.net>
+	BrendaEM
+	capela
+	John Currier (Muze)				<info@mashedbuddha.com>
+	Domarius						<domarius@hotmail.com>
+	Dram							<dramthethief@hotmail.com>
+	dziarsky
+	Fidcal							<fidcal@jumbery.com>
+	Fingernail						<fingernail@thedarkmod.com>
+	Gildoran
+	gleeful
+	David Gurrea					http://www.davegh.com/
+	Troiano Lorenzo (ECHELON)		<Techworld@techemail.com>
+	Theo Holloway					<theoholloway@hotmail.com>
+	Jerboa
+	Jordan Kopp (jdude)				<j_kopp87@hotmail.com>
+	Judith							http://www.masterbuilderstore.com
+	Andrew Lister (ShadowSneaker)	<shadow_sneaker@yahoo.co.uk>
+	Lloyd
+	C. Cade Mosley (demagogue)		<Cade@trioptimum.com>
+	Keeper_riff
+	knymed
+	Magda Łysak (Maruda)			<madmadzik@gmail.com> http://www.magajaga.deviantart.com
+	mikebart
+	MoroseTroll
+	New Horizon						<doom2thiefmod@hotmail.com>
+	Norsu
+	oDDity
+	OrbWeaver						<orbweaver3d@gmail.com>
+	pakmannen						<jens.ljungblad@tjoff.com>
+	Petr Kašpar (PPoe)
+	Chris Pelling (Crispy)			<chrisp-tdm@inventivedingo.com>
+	Rand Phares (grayman)			<rsphares@yahoo.com>
+	RPGista							<magnoscavone@hotmail.com>
+	Phil							<viriiph@maine.rr.com>
+	pinkdot
+	rebb							<rebb@trisoup.net>
+	Ruber Eaglenest					<rubereaglenest@gmail.com>
+	Ben Rusch						<ruschbj@gmail.com>
+	Chris Sarantos (Ishtvan)		<csarantos@gmail.com>
+	saxmeister
+	Serpentine
+	Schatten						<matze-gruenewald@gmx.de>
+	shotgun
+	Sparhawk						<sparhawk@gmx.at>
+	Springheel						<eric@mindplaces.com>
+	SneaksieDave					<sneaksiedave@yahoo.com>
+	snobel
+	SophisticatedZombie				<sophZombie@yahoo.com>
+	Sotha				
+	squill
+	Stifu
+	stgatilov
+	str8g8
+	Tels							<nospam-abuse@bloodgate.com>
+	Tricko
+	Jan Urbanc (mrDischarged)		<jan.urbanc@gmail.com>
+
+Translators (see above for contact info):
+
+	Czech				PPoe
+	Danish				snobel
+	French				Briareos H, Hyeron
+	German				7upman, Tels
+	Italian				ECHELON, knymed
+	Polish				Maruda
+	Portuguese			RPGista
+	Russian				Keeper_riff, MoroseTroll
+	Spanish				Ruber Eaglenest
+
+Also thanks to:
+
+	mayang					   http://www.mayang.com/textures/
+	cgtextures				   http://www.cgtextures.com/
+	inolen					   <www.inolen.com>				For his Fresnel Shader
+	Hellborg				   <leif@gravity-music.net>		For his Rotoscope (Noir cartoon-like) shader
+	maha_x					   <maha_x@hotmail.com>			For his HDR-like sensitivity shift bloom shader and source
+	J.C. Denton												For his HDR post-processing and ambient rendering methods
+	G. Meade, Australia		   <gem@c031.aone.net.au>		For the Treasure Map font
+	Steven J. Lundeen, Seattle <ecf@speakeasy.org>			For the jd_hand font
+	Aileen Lau				   <stimuleyefonts@hotmail.com> For the popsies font
+	SnoopJeDi												For the idea on how to adjust music volume
+	The "Ground Zero Mod" team:								For showing that combined rendermodels and multi-clip work
+
+Freesound Samples (author, sound file, licence URL)
+
+Q.K.		water_drink.wav		http://creativecommons.org/licenses/sampling+/1.0/
+jaava73		WINDlessCHIME.wav	http://creativecommons.org/licenses/sampling+/1.0/
