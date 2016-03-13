@@ -35,8 +35,13 @@ and run: C:\Program Files\NSIS\makensis.exe /X"SetCompressor /FINAL lzma" darkmo
 -- Changelog --
 
 1.0.4 (20160313)
-- Changed shortcut for updater.
+- Changed the startmenu shortcut for the updater.
 - Added more info to welcometext
+- Added an option to install desktop shortcuts
+- Added code to remove the desktop shortcut files
+- Changed BrandingText
+- Changed some textlabels for welcometext,Directory,Finischpage
+- Commentedout InstallerVersion in brandingtext, requested by Grayman 
  
 1.0.3 (20160110)
 - Script - Changed the format of the installerscript, to make it more userfriendy.
