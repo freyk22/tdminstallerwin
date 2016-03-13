@@ -45,7 +45,12 @@ END
 
 
 -- Versions --
-Changes / bugfixes 
+Changes / bugfixes
+
+* 1.0.4 (20160313)
+- Changed shortcut for updater.
+- Added more info to welcomtext
+ 
 * 1.0.3 (20160110 weekend)
 - Script - Changed the format of the installerscript, to make it more userfriendy.
 - Script - Changed (Commented out) codelines to create a placeholder for tdm.exe  

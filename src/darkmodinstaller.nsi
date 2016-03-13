@@ -20,6 +20,10 @@ The following nsis plugin is needed for this script
 ===================
 
 Changes / bugfixes 
+1.0.4 (20160313)
+- Changed shortcut for updater.
+- Added more info to welcomtext
+
 1.0.3
 - Added more text and graphic content in unstaller 
 - Changed the format of the installerscript, to make it more userfriendy.
@@ -39,12 +43,12 @@ Changes / bugfixes
 ;Variables
 
 !define InstallerName "The Dark Mod Installer"
-!define InstallerVersion "v1.03"
+!define InstallerVersion "v1.04"
 !define InstallerAuthor "Freek 'Freyk' Borgerink"
-!define InstallerFilename "tdm_installer.exe"
+!define InstallerFilename "TDM_installer.exe"
 !define UninstallerName "The Dark Mod Uninstaller"
 !define UninstallerVersion ${InstallerVersion}
-!define UninstallerFilename "tdm_uninstaller.exe"
+!define UninstallerFilename "TDM_uninstaller.exe"
 !define AppName "The Dark Mod"
 !define AppCreator "Broken Glass Studios"
 !define AppVersion "2.04"
@@ -92,7 +96,7 @@ BrandingText "${InstallerName} - ${InstallerVersion} - by ${InstallerAuthor}"
 ;Customized objects and settings for some Pages
 ;Custom Welcome page
 !define MUI_WELCOMEPAGE_TITLE "${InstallerName}"
-!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for The Dark Mod, version ${AppVersion}$\n$\nThis installer installs the updater for $\ndownloading/updating the game files.$\nIt also place a uninstaller and can create shortcuts to the game.$\n$\nFor More information go to ${AppWebsite}$\n$\nInstaller created by Freek 'Freyk' Borgerink."  
+!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for The Dark Mod, version ${AppVersion}$\n$\nThis installer installs the updater for $\ndownloading/updating the game files.$\nIt also place a uninstaller and can create shortcuts to the game.$\n$\nPlease run the updater after installation.$\n$\nFor More information go to ${AppWebsite}$\n$\nInstaller created by Freek 'Freyk' Borgerink."  
 ;Custom finischpage
 !define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the updater on your computer.$\n$\nTo complete the installation of The Dark Mod,$\nthe updater must download the requiered game files.$\nThis installer will run automaticly the updater"
 !define MUI_FINISHPAGE_RUN_TEXT "Launch the updater"
@@ -176,7 +180,7 @@ Section "Startmenu Shortcuts" SectionShortcuts
 	CreateShortCut "$SMPROGRAMS\${AppName}\Uninstall.lnk" "$INSTDIR\${UninstallerFilename}" "" "$INSTDIR\darkmod.ico" 0
 	CreateShortCut "$SMPROGRAMS\${AppName}\License.lnk" "$INSTDIR\LICENSE.txt" "" "$INSTDIR\LICENSE.txt" 0
 	CreateShortCut "$SMPROGRAMS\${AppName}\AUTHORS.lnk" "$INSTDIR\AUTHORS.txt" "" "$INSTDIR\AUTHORS.txt" 0	
-	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk" "$INSTDIR\${InstallerFilename}" "" "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
+	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" "" "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
 	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
   
 SectionEnd
