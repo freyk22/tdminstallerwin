@@ -1,7 +1,7 @@
 /*
 ================================
 = The Darkmod installer script =
-= v1.03						   =
+= v1.04						   =
 ================================
 = Author: 					   =
 = Freek "freyk" Borgerink      =
@@ -10,7 +10,8 @@
 
 Description
 This installer is created for the game The Dark Mod. (http://www.thedarkmod.com)
-This installer places on the users system a gamefolder, create shortcuts and a uninstaller.   
+It places on the users system the updater inside the gamefolder, 
+And creates shortcuts and a uninstaller.   
 
 =================
 Required nsis plugins
@@ -21,9 +22,13 @@ The following nsis plugin is needed for this script
 
 Changes / bugfixes 
 1.0.4 (20160313)
-- Changed shortcut for updater.
-- Added more info to welcomtext
-
+- Changed the startmenu shortcut for the updater.
+- Added more info to welcometext
+- Added an option to install desktop shortcuts
+- Added code to remove the desktop shortcut files
+- Changed BrandingText
+- Changed some textlabels for welcometext,Directory,Finischpage
+- Commentedout InstallerVersion in brandingtext, requested by Grayman 
 1.0.3
 - Added more text and graphic content in unstaller 
 - Changed the format of the installerscript, to make it more userfriendy.
@@ -80,7 +85,7 @@ CRCCheck On
 ;--------------------------------
 ;Interface Settings
 
-BrandingText "${InstallerName} - ${InstallerVersion} - by ${InstallerAuthor}"
+BrandingText "${InstallerName}"
 !define MUI_ICON "tdmsystemfiles\darkmod.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "graphics\darkmodinstaller-panel.bmp"
 !define MUI_HEADERIMAGE
@@ -96,17 +101,21 @@ BrandingText "${InstallerName} - ${InstallerVersion} - by ${InstallerAuthor}"
 ;Customized objects and settings for some Pages
 ;Custom Welcome page
 !define MUI_WELCOMEPAGE_TITLE "${InstallerName}"
-!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for The Dark Mod, version ${AppVersion}$\n$\nThis installer installs the updater for $\ndownloading/updating the game files.$\nIt also place a uninstaller and can create shortcuts to the game.$\n$\nPlease run the updater after installation.$\n$\nFor More information go to ${AppWebsite}$\n$\nInstaller created by Freek 'Freyk' Borgerink."  
+!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for The Dark Mod.$\n$\nThis application installs only the updater for $\ndownloading and updating the game files.$\n$\nPlease run the updater after the installation.$\n$\nFor More information go to ${AppWebsite}$\n$\n$\n$\n$\n$\n$\n${InstallerName} (${InstallerVersion}) is created by$\nFreek 'Freyk' Borgerink."  
+;Custom directorypage
+DirText "This installer will install ${AppName} in the following folder. To install in a different folder, click Browse and select another folder. Click Install to start the installation." \
+  "Please specify the path of the game folder:"
+
 ;Custom finischpage
-!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the updater on your computer.$\n$\nTo complete the installation of The Dark Mod,$\nthe updater must download the requiered game files.$\nThis installer will run automaticly the updater"
-!define MUI_FINISHPAGE_RUN_TEXT "Launch the updater"
+!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the updater on your computer.$\n$\nTo complete the installation of The Dark Mod, the updater needs to run in order to download the requiered game files."
+!define MUI_FINISHPAGE_RUN_TEXT "Launch ${AppName} Updater."
 !define MUI_FINISHPAGE_RUN 
 !define MUI_FINISHPAGE_RUN_CHECKED ;Checked checkbox to launch the updater
 !define MUI_FINISHPAGE_RUN_FUNCTION "fncLaunchUpdater" ;execute function to run the updater
 ;if function is selected, set variabeles for the shortcuts to run as administrator
-!define SHELLLINKTEST1 "$SMPROGRAMS\Darkmod\The Darkmod Updater.lnk"
-!define SHELLLINKTEST2 "$SMPROGRAMS\Darkmod\The Darkmod.lnk"
-!define SHELLLINKTEST3 "$SMPROGRAMS\Darkmod\Uninstall.lnk"                        
+!define SHELLLINKTEST1 "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk"
+!define SHELLLINKTEST2 "$SMPROGRAMS\${AppName}\${AppName}.lnk"
+!define SHELLLINKTEST3 "$SMPROGRAMS\${AppName}\Uninstall.lnk"                        
 
 ;Pages for the installer
 !insertmacro MUI_PAGE_WELCOME
@@ -117,18 +126,18 @@ BrandingText "${InstallerName} - ${InstallerVersion} - by ${InstallerAuthor}"
 !insertmacro MUI_PAGE_FINISH
 
 ; pages for uninstaller
-BrandingText "${UninstallerName} - ${UninstallerVersion} - by ${InstallerAuthor}"
+;BrandingText "${UninstallerName} - ${UninstallerVersion} - by ${InstallerAuthor}"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "graphics\darkmodinstaller-panel.bmp"
 !define MUI_WELCOMEPAGE_TITLE "${AppName} Uninstaller"
 !define MUI_WELCOMEPAGE_TEXT "This uninstaller will remove ${AppName} of your system."
 !insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_COMPONENTS
 !define MUI_UNPAGE_CONFIRM_TITLE "${AppName} Uninstaller"
-!define MUI_UNPAGE_CONFIRM_TEXT "ook hoi"
+!define MUI_UNPAGE_CONFIRM_TEXT "Going to delete ${AppName} gamefolder."
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 !define MUI_FINISHPAGE_TITLE "${AppName} Uninstaller"
-!define MUI_FINISHPAGE_TEXT "${AppName} is succesfully removed. $\n$\n For more information and news about darkmod, $\nvisit ${AppWebsite}"
+!define MUI_FINISHPAGE_TEXT "${AppName} is succesfully removed.$\n$\nFor more information and news about ${AppName}, $\nvisit ${AppWebsite}"
 !insertmacro MUI_UNPAGE_FINISH
 
 ;--------------------------------
@@ -150,18 +159,16 @@ Section "The Dark mod Updater" SectionUpdater
 	; Get the TDM files from here and copy to $INSTDIR
 	File /r "tdmsystemfiles\"
 
-	;copy tdmupdate to act as a placeholder for file Thedarmod.exe
-	;CopyFiles "$INSTDIR\tdm_update.exe" "$INSTDIR\TheDarkMod.exe"
+	;;Write the installation path into the registry
+	;WriteRegStr HKLM SOFTWARE\The_Dark_Mod "Install_Dir" "$INSTDIR"
+	
 	
 	;Registry settings
-	
-	;Write the installation path into the registry
-	;WriteRegStr HKLM SOFTWARE\The_Dark_Mod "Install_Dir" "$INSTDIR"
 	
 	;Object for the windows software update/remove section
 	!define REG_U "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkmod"
 	WriteRegStr HKCU "${REG_U}" "DisplayName" "${AppName}"
-	WriteRegStr HKCU "${REG_U}" "DisplayVersion" "${AppVersion}"
+	WriteRegStr HKCU "${REG_U}" "DisplayVersion" "1.0"
 	WriteRegStr HKCU "${REG_U}" "UninstallString" '"$INSTDIR\${UninstallerFilename}"'
 	WriteRegStr HKCU "${REG_U}" "Publisher" "${AppCreator}"
 	WriteRegStr HKCU "${REG_U}" "URLInfoAbout" "${AppWebsite}"
@@ -175,7 +182,7 @@ SectionEnd
 
 Section "Startmenu Shortcuts" SectionShortcuts
 
-	; create shortcut menu for tdm
+	; create start menu shortcuts for tdm
 	CreateDirectory "$SMPROGRAMS\${AppName}" 
 	CreateShortCut "$SMPROGRAMS\${AppName}\Uninstall.lnk" "$INSTDIR\${UninstallerFilename}" "" "$INSTDIR\darkmod.ico" 0
 	CreateShortCut "$SMPROGRAMS\${AppName}\License.lnk" "$INSTDIR\LICENSE.txt" "" "$INSTDIR\LICENSE.txt" 0
@@ -185,6 +192,13 @@ Section "Startmenu Shortcuts" SectionShortcuts
   
 SectionEnd
 
+Section /o "Desktop Shortcuts" SectionShortcutsDesktop
+
+	; create Desktop shortcuts for tdm
+	CreateShortCut "$DESKTOP\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" "" "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
+	CreateShortCut "$DESKTOP\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+
+SectionEnd
 
 Section /o "Startmenu Shortcuts (systemadmin rights)" SectionShortcutsAdmin
 
@@ -225,10 +239,13 @@ SectionIn RO
 
 	; Remove files and uninstaller
 	RMDir /r $INSTDIR
-	;Delete $INSTDIR\*.*
 	
 	; Remove shortcuts, if any
 	RMDir /r "$SMPROGRAMS\The Dark Mod"
+	Delete "$DESKTOP\${AppName}\${AppName} Updater.lnk" 
+	Delete "$DESKTOP\${AppName}.lnk"
+	Delete "$DESKTOP\${AppName} Updater.lnk"
+	
   
 SectionEnd
 
@@ -250,6 +267,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionUpdater} "The Darkmod Updater, for installing and updating the game files."
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcuts} "Startmenu shortcuts"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsDesktop} "Desktop shortcuts"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsAdmin} "Startmenu shortcuts with admin privileges"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionTDM} "The Darkmod"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
