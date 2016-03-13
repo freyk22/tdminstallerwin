@@ -10,25 +10,16 @@ Created with Nsis 3.04
 
 
 -- Installation the installer build environment --
-1.
-Extract the zip file   
 
-2. 
-Install nsis from the nssis-tools folder
-
-3. 
-Extract Shelllink.dll from "nssis-tools\Shelllink.zip\Plugins\Shelllink.dll" 
-to "C:\Program Files\NSIS\Plugins\x86-ansi\" and "C:\Program Files\NSIS\Plugins\x86-unicode"
-
+1. Extract the zip file   
+2. Install nsis from the nssis-tools folder
+3. Extract Shelllink.dll from "nssis-tools\Shelllink.zip\Plugins\Shelllink.dll" to "C:\Program Files\NSIS\Plugins\x86-ansi\" and "C:\Program Files\NSIS\Plugins\x86-unicode"
 4.END
 
 -- Compiling the script --
 
-1. 
-Go to the source folder. 
-
-2.
-Compile the installer:
+1. Go to the source folder. 
+2. Compile the installer:
 
 Method 1:
 right-click darkmodinstaller.nsi" > compile nsis script.
@@ -38,12 +29,10 @@ start cmd,
 go to the source folder
 and run: C:\Program Files\NSIS\makensis.exe /X"SetCompressor /FINAL lzma" darkmodinstaller.nsi
 
-3.
-END
+3.END
 
 
--- Versions --
-Changes / bugfixes
+-- Changelog --
 
 1.0.4 (20160313)
 - Changed shortcut for updater.
