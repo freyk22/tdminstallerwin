@@ -14,10 +14,10 @@ Created with Nsis 3.04
 Extract the zip file   
 
 2. 
-Install nsis from the nssis-tools folder
+Install nsis from the "nssis-tools" folder
 
 3. 
-Extract Shelllink.dll from "nssis-tools\Shelllink.zip\Plugins\Shelllink.dll" 
+Extract Shelllink.dll from "nssis-tools\AccessControl.zip\Plugins\AccessControl.dll" 
 to "C:\Program Files\NSIS\Plugins\x86-ansi\" and "C:\Program Files\NSIS\Plugins\x86-unicode"
 
 4.END
@@ -33,12 +33,12 @@ Go to the source folder.
 Compile the installer:
 
 Method 1:
-right-click darkmodinstaller_[versionnumber].nsi" > compile nsis script.
+right-click darkmodinstaller.nsi" > compile nsis script.
 
 Method 2:
 start cmd,
 go to the source folder
-and run: C:\Program Files\NSIS\makensis.exe /X"SetCompressor /FINAL lzma" darkmodinstaller_[versionnumber].nsi
+and run: C:\Program Files\NSIS\makensis.exe /X"SetCompressor /FINAL lzma" darkmodinstaller.nsi
 
 3.
 END
@@ -46,6 +46,24 @@ END
 
 -- Versions --
 Changes / bugfixes
+
+v20160709
+- Changed executionlevel to "user". To write create a tdm-folder in program files, run installer as admin.
+- Removed shelllink from project
+- removed argument "targetdir" from execshell tdm updater, because if the installer started with elevated permissions, it crashes the updater.
+- Changed VIAddVersionKey versionnumbers
+
+v20160706
+- removed versionnumbers of the game.
+- Changed names of components
+- added File description for installer
+- Added Plugin "Accesscontrol" for Changeing userpermissions on folder.
+- commented out Shellink lines, because there is no need anymore.
+- commented out section "Startmenu Shortcuts (systemadmin rights)", because there is no need anymore.
+- Added full acces permissions to tdm folder, using AccessControl
+- added arguments to execshell
+- Code cleanup.
+
 
 1.0.4 (20160313)
 - Changed the startmenu shortcut for the updater.
