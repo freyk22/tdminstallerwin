@@ -1,7 +1,7 @@
 /*
 ================================
 = The Darkmod installer script
-= v20160709
+= v20160718
 ================================
 = Author:
 = Freek "freyk" Borgerink
@@ -22,7 +22,7 @@ The following nsis plugin is needed for this script
 ;Variables
 
 !define InstallerName "The Dark Mod Installer"
-!define InstallerVersion "v20160709"
+!define InstallerVersion "v20160718"
 !define InstallerAuthor "Freek 'Freyk' Borgerink"
 !define InstallerFilename "TDM_installer.exe"
 !define UninstallerName "The Dark Mod Uninstaller"
@@ -30,9 +30,9 @@ The following nsis plugin is needed for this script
 !define UninstallerFilename "TDM_uninstaller.exe"
 !define AppName "The Dark Mod"
 !define AppCreator "Broken Glass Studios"
-;!define AppVersion "2.04"
 !define AppWebsite "http://www.thedarkmod.com"
 !define Appdir "c:\games\darkmod"   ; "c:\games\darkmod" or "$PROGRAMFILES\darkmod"
+
 
 
 ;--------------------------------
@@ -52,11 +52,8 @@ Caption "${InstallerName}"
 InstallDir "${Appdir}"
 
 ;Request application privileges for Windows. 
-;"user" (normal permissions) or "admin" (elevated)
-;If you want to install in program files, executionlevel needs to set to admin. 
-;Or run installer as administrator.
-RequestExecutionLevel user
-
+;"user" (normal permissions) or "admin" (elevated permissions)
+RequestExecutionLevel admin
 
 ;CRC check the installer.
 CRCCheck On
@@ -65,22 +62,22 @@ CRCCheck On
 ;Interface Settings
 
 BrandingText "${InstallerName} ${InstallerVersion}"
+
 !define MUI_ICON "tdmsystemfiles\darkmod.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "graphics\darkmodinstaller-panel.bmp"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "graphics\darkmodinstaller-header.bmp"
-;!define MUI_HEADERIMAGE_LEFT
 
-;show installation logs during (un)installation
-ShowInstDetails show
+;show installation logs during (un)installation (show/hide/none)
+ShowInstDetails hide
 
 ;Installer file-description
 VIProductVersion "0.0.0.0"
 VIAddVersionKey ProductName "${InstallerName}"
-VIAddVersionKey Comments "${InstallerName} a application that installs the gamefolder and updater for the game The Dark Mod.  For additional details, visit ${AppWebsite}"
+VIAddVersionKey Comments "${InstallerName} an application that installs the gamefolder and updater for the game The Dark Mod.  For additional details, visit ${AppWebsite}"
 VIAddVersionKey CompanyName "${AppCreator}"
 VIAddVersionKey LegalCopyright "${AppCreator}"
-VIAddVersionKey FileDescription "${InstallerName} a application that installs the gamefolder and updater for the game The Dark Mod.  For additional details, visit ${AppWebsite}"
+VIAddVersionKey FileDescription "${InstallerName} an application that installs the gamefolder and updater for the game The Dark Mod.  For additional details, visit ${AppWebsite}"
 VIAddVersionKey FileVersion ${InstallerVersion}
 VIAddVersionKey ProductVersion ${InstallerVersion}
 VIAddVersionKey InternalName "${InstallerName}"
@@ -91,47 +88,65 @@ VIAddVersionKey OriginalFilename "${InstallerFilename}"
 ;Pages
 
 
-
 ;Customized objects and settings for some Pages
 
 ;Custom Installer Welcome page
 !define MUI_WELCOMEPAGE_TITLE "${InstallerName}"
-!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for The Dark Mod.$\n$\nThis application installs only the gamefolder and the updater for the game. $\nAfter the installation, the updater needs to run to download the gamefiles.$\n$\nPlease run the updater after the installation.$\n$\nFor more information go to ${AppWebsite}$\n$\n$\n$\n${InstallerName} is created by$\nFreek 'Freyk' Borgerink."  
+!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for The Dark Mod.$\n$\nThis application installs only the gamefolder and the updater for the game. $\n$\nAfter the installation, the updater needs to run to download the gamefiles.$\n$\nFor more information go to ${AppWebsite}$\n$\n$\n$\n${InstallerName} by Freek 'Freyk' Borgerink."
+!insertmacro MUI_PAGE_WELCOME
+
+;Custom Installer Licensepage
+!define MUI_PAGE_HEADER_TEXT "License Agreement"
+!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing ${AppName}."
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "If you accept the terms of the agreement, click I agree to continue. You must accept the agreement to install ${AppName}." 
+!insertmacro MUI_PAGE_LICENSE "tdmsystemfiles\LICENSE.txt"
+
+;Custom Components Page
+!define MUI_PAGE_HEADER_TEXT "Choose Components"
+!define MUI_PAGE_HEADER_SUBTEXT "Choose wich features of ${AppName} you want to install."
+!insertmacro MUI_PAGE_COMPONENTS
 
 ;Custom Installer directorypage
-DirText "This installer will install ${AppName} in the following folder. To install in a different folder, click Browse and select another folder. Click Install to start the installation." \
+!define MUI_PAGE_HEADER_TEXT "Choose Install Location"
+!define MUI_PAGE_HEADER_SUBTEXT "Choose the folder which to install ${AppName}."
+DirText "This installer will install ${AppName} in the following folder.$\nTo install in a different folder, click Browse and select another folder.$\nClick Install to start the installation." \
   "Please specify the path of the game folder:"
+!insertmacro MUI_PAGE_DIRECTORY
+
+
+;Custom installer installerfiles page
+!define MUI_PROGRESSBAR smooth
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!insertmacro MUI_PAGE_INSTFILES
 
 ;Custom Installer finischpage
-!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the updater on your computer.$\n$\nTo complete the installation of The Dark Mod, the updater needs to run in order to download the requiered game files."
-!define MUI_FINISHPAGE_RUN_TEXT "Launch ${AppName} Updater."
-!define MUI_FINISHPAGE_RUN 
-!define MUI_FINISHPAGE_RUN_CHECKED ;Checked checkbox to launch the updater
-!define MUI_FINISHPAGE_RUN_FUNCTION "fncUpdaterRun" ;execute function to run the updater
-
-;Pages for the installer
-!insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "tdmsystemfiles\LICENSE.txt"
-!insertmacro MUI_PAGE_COMPONENTS
-!insertmacro MUI_PAGE_DIRECTORY
-!insertmacro MUI_PAGE_INSTFILES
+!define MUI_FINISHPAGE_TITLE "Completing ${Appname} Setup"
+#!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the gamefolder and the updater on your system.$\n$\nTo complete the installation of ${AppName}, the updater needs to run in order to download the required game files."
+!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the gamefolder and the updater on your system.$\n$\nTo complete the installation of ${AppName},$\nthe required game-files needs to be downloaded.$\n$\nWhen you click on the finisch-button, the updater will be automatically started."
+#!define MUI_FINISHPAGE_RUN
+#!define MUI_FINISHPAGE_RUN_TEXT "Launch ${AppName} Updater."
+#!define MUI_FINISHPAGE_RUN_CHECKED ;Checked checkbox to launch the updater
+#!define MUI_FINISHPAGE_RUN_FUNCTION "fncUpdaterRun" ;execute function to run the updater
+!define MUI_PAGE_CUSTOMFUNCTION_LEAVE fncUpdaterRun
 !insertmacro MUI_PAGE_FINISH
-
 
 ; pages for uninstaller
 ;Custom Uninstaller Welcome Page
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "graphics\darkmodinstaller-panel.bmp"
 !define MUI_WELCOMEPAGE_TITLE "${AppName} Uninstaller"
-!define MUI_WELCOMEPAGE_TEXT "This uninstaller will remove ${AppName} of your system."
+!define MUI_WELCOMEPAGE_TEXT "This uninstaller will remove ${AppName} of your system.$\n$\n$\n$\n${AppName} Uninstaller by Freek 'Freyk' Borgerink."
 !insertmacro MUI_UNPAGE_WELCOME
 
-;Custom Uninstaller Components Page
-!insertmacro MUI_UNPAGE_COMPONENTS
-!define MUI_UNPAGE_CONFIRM_TITLE "${AppName} Uninstaller"
-!define MUI_UNPAGE_CONFIRM_TEXT "Going to delete ${AppName} gamefolder."
-
-;No Custom Uninstaller Confirm and Instfiles pages
+;custom page for confirm uninstallpage
+!define MUI_UNCONFIRMPAGE_TEXT_TOP "Are you sure to delete ${AppName} from your system?"
+!define MUI_UNCONFIRMPAGE_TEXT_LOCATION "Delete from location:"
 !insertmacro MUI_UNPAGE_CONFIRM
+
+;custom page for detail uninstallpage
+!define MUI_PAGE_HEADER_TEXT "Uninstalling ${AppName}"
+!define MUI_PAGE_HEADER_SUBTEXT "Removing ${AppName} from your computer"
+!define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Uninstalling ${AppName}"
+!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "Removing ${AppName} from your computer"
 !insertmacro MUI_UNPAGE_INSTFILES
 
 ;Custom Uninstaller FINISHPAGE Page
@@ -168,7 +183,7 @@ Section "Gamefolder and updater" SectionUpdater
 	; Object for the windows software update/remove section
 	!define REG_U "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkmod"
 	WriteRegStr HKCU "${REG_U}" "DisplayName" "${AppName}"
-	;WriteRegStr HKCU "${REG_U}" "DisplayVersion" "1.0"
+	WriteRegStr HKCU "${REG_U}" "DisplayVersion" "1.0"
 	WriteRegStr HKCU "${REG_U}" "UninstallString" '"$INSTDIR\${UninstallerFilename}"'
 	WriteRegStr HKCU "${REG_U}" "Publisher" "${AppCreator}"
 	WriteRegStr HKCU "${REG_U}" "URLInfoAbout" "${AppWebsite}"
@@ -189,7 +204,7 @@ Section "Startmenu Shortcuts" SectionShortcuts
 	CreateShortCut "$SMPROGRAMS\${AppName}\Uninstall.lnk" "$INSTDIR\${UninstallerFilename}" "" "$INSTDIR\darkmod.ico" 0
 	CreateShortCut "$SMPROGRAMS\${AppName}\License.lnk" "$INSTDIR\LICENSE.txt" "" "$INSTDIR\LICENSE.txt" 0
 	CreateShortCut "$SMPROGRAMS\${AppName}\AUTHORS.lnk" "$INSTDIR\AUTHORS.txt" "" "$INSTDIR\AUTHORS.txt" 0	
-	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" "" "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
+	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" '--targetdir="$INSTDIR"' "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
 	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
   
 SectionEnd
@@ -199,7 +214,7 @@ SectionEnd
 Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 
 	; create Desktop shortcuts for tdm
-	CreateShortCut "$DESKTOP\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" "" "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
+	CreateShortCut "$DESKTOP\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" '--targetdir="$INSTDIR"' "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
 	CreateShortCut "$DESKTOP\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
 
 SectionEnd
@@ -209,18 +224,20 @@ SectionEnd
 Function fncUpdaterRun
 	
 	; Execute the updater with arguments
-	;ExecShell "" "$INSTDIR\tdm_update.exe" "--noselfupdate --targetdir=$INSTDIR"
-	;Exec '"$INSTDIR\tdm_update.exe" --noselfupdate --targetdir=$INSTDIR"'
-	ExecShell "" "$INSTDIR\tdm_update.exe" "--noselfupdate"
-	
+	ExecShell "" "$INSTDIR\tdm_update.exe" '--noselfupdate --targetdir="$INSTDIR"'
 
 FunctionEnd
+
 
 
 ;--------------------------------
 ;Uninstaller Section
 Section "un.The Dark Mod" SectionTDM
+
 	SectionIn RO
+	
+	;display uninstallpage
+	SetAutoClose false ;
 
 	; Remove registry keys  
 	DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkmod"
@@ -255,6 +272,33 @@ SectionEnd
 /*
 ;--------------------------------
 Changes / bugfixes 
+
+v20160718
+- Added targetdir-argument to shortcuts for updater.
+- removed the runafterinstall-checkbox on finischpage. The updater will be automaticly started when the user hits the finisch button.
+
+v20160717a
+- Added setting "SetAutoClose false" to show uninstall details.
+- Added headers to uninstall page.
+- added quotes to targetdir-argument of the updater in fncUpdaterRun. So the updater dont crash when the path has spaces. 
+
+v20160717
+- Changed Textlabels on all installer pages. (because tdm-installer doesnt install itself)
+- Changed Content of Welcome screen.
+- Added variable names to some textlabels.
+- Changed that the logscreen in the instfiles page will be hidden.
+- Tried to hide the runafterinstall-checkbox on finischpage
+- Changed content welcomescreen uninstaller.
+- Changed labels from all uninstaller pages
+- Removed uninstaller components page
+- Changed some comments in code.
+
+v20160713
+- added tdmupdate version 0.65
+
+v20160712
+- Changed executionlevel to "admin" (to run the installer with elevated permissions), discussed with bikerdude
+
 
 v20160709
 - Changed executionlevel to "user". To write create a tdm-folder in program files, run installer as admin.
