@@ -1,13 +1,28 @@
 
 The darkmodinstaller (windows) is created by
 Freek "Freyk" Borgerink
-https://sites.google.com/site/freykssite01/
+https://freyk.wordpress.com
 
 Created for the dark mod (http://www.thedarkmod.com)
 
 
 -- Versions --
 Changes / bugfixes
+
+v20160731
+- Gammar fixes and additional text from teh_saccade.
+  textlabel changes at pages: 
+  VIAddVersionKey, MUI_WELCOMEPAGE_TEXT, MUI_LICENSEPAGE, Componentspage, 
+  Location page, MUI_FINISHPAGE, un_welcomepage, unconfirmpage, unINSTFILESPAGE 
+  and MUI_FUNCTION_DESCRIPTION
+
+v20160728
+- Brandingname issue found and reported ("The Dark Mod" or "The Darkmod").
+- Changed Welcomescreen title for installer and uninstaller to ${AppName}. (request by Bikerdude)
+- added variable ${AppName} to caption (un)installer & filename shortcuts.
+- Added Grammerfixes by BikerDude to directorypage_HEADER_SUBTEXT, FINISHPAGE_TEXT, 
+  uninstaller_WELCOMEPAGE_TEXT, UNCONFIRMPAGE_TEXT_TOP, 
+  uninstaller_FINISHPAGE_TEXT and component description-SectionUpdater. 
 
 v20160718
 - Added targetdir-argument to shortcuts for updater.

@@ -1,7 +1,7 @@
 /*
 ================================
 = The Darkmod installer script
-= v20160718
+= v20160731
 ================================
 = Author:
 = Freek "freyk" Borgerink
@@ -20,18 +20,18 @@ The following nsis plugin is needed for this script
 */
 
 ;Variables
-
-!define InstallerName "The Dark Mod Installer"
-!define InstallerVersion "v20160718"
-!define InstallerAuthor "Freek 'Freyk' Borgerink"
-!define InstallerFilename "TDM_installer.exe"
-!define UninstallerName "The Dark Mod Uninstaller"
-!define UninstallerVersion ${InstallerVersion}
-!define UninstallerFilename "TDM_uninstaller.exe"
 !define AppName "The Dark Mod"
 !define AppCreator "Broken Glass Studios"
 !define AppWebsite "http://www.thedarkmod.com"
 !define Appdir "c:\games\darkmod"   ; "c:\games\darkmod" or "$PROGRAMFILES\darkmod"
+
+!define InstallerName "${AppName} Installer"
+!define InstallerVersion "v20160731"
+!define InstallerAuthor "Freek 'Freyk' Borgerink"
+!define InstallerFilename "TDM_installer.exe"
+!define UninstallerName "${AppName} Uninstaller"
+!define UninstallerVersion ${InstallerVersion}
+!define UninstallerFilename "TDM_uninstaller.exe"
 
 
 
@@ -45,7 +45,7 @@ The following nsis plugin is needed for this script
 
 ; Filename and Location of the installer
 OutFile "${InstallerFilename}"
-Name "${InstallerName}" 
+Name "${AppName}" 
 Caption "${InstallerName}"
 
 ; Default installation folder
@@ -74,10 +74,10 @@ ShowInstDetails hide
 ;Installer file-description
 VIProductVersion "0.0.0.0"
 VIAddVersionKey ProductName "${InstallerName}"
-VIAddVersionKey Comments "${InstallerName} an application that installs the gamefolder and updater for the game The Dark Mod.  For additional details, visit ${AppWebsite}"
+VIAddVersionKey Comments "${InstallerName} is an application that creates the gamefolder and installs the updater for the game, The Dark Mod.  For additional details, visit ${AppWebsite}"
 VIAddVersionKey CompanyName "${AppCreator}"
 VIAddVersionKey LegalCopyright "${AppCreator}"
-VIAddVersionKey FileDescription "${InstallerName} an application that installs the gamefolder and updater for the game The Dark Mod.  For additional details, visit ${AppWebsite}"
+VIAddVersionKey FileDescription "${InstallerName} is an application that creates the gamefolder and installs the updater for the game, The Dark Mod.  For additional details, visit ${AppWebsite}"
 VIAddVersionKey FileVersion ${InstallerVersion}
 VIAddVersionKey ProductVersion ${InstallerVersion}
 VIAddVersionKey InternalName "${InstallerName}"
@@ -91,25 +91,25 @@ VIAddVersionKey OriginalFilename "${InstallerFilename}"
 ;Customized objects and settings for some Pages
 
 ;Custom Installer Welcome page
-!define MUI_WELCOMEPAGE_TITLE "${InstallerName}"
-!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for The Dark Mod.$\n$\nThis application installs only the gamefolder and the updater for the game. $\n$\nAfter the installation, the updater needs to run to download the gamefiles.$\n$\nFor more information go to ${AppWebsite}$\n$\n$\n$\n${InstallerName} by Freek 'Freyk' Borgerink."
+!define MUI_WELCOMEPAGE_TITLE "${AppName}"
+!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for ${AppName}.$\n$\nThis application will create gamefolder and then install the updater for the game. $\n$\nAfter the installation, the updater will run to download the gamefiles.$\n$\nFor more information go to ${AppWebsite}$\n$\n$\n$\n${InstallerName} by Freek 'Freyk' Borgerink."
 !insertmacro MUI_PAGE_WELCOME
 
 ;Custom Installer Licensepage
 !define MUI_PAGE_HEADER_TEXT "License Agreement"
-!define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing ${AppName}."
-!define MUI_LICENSEPAGE_TEXT_BOTTOM "If you accept the terms of the agreement, click I agree to continue. You must accept the agreement to install ${AppName}." 
+!define MUI_PAGE_HEADER_SUBTEXT "Please review the license agreement before installing ${AppName}."
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "You must accept the agreement to install ${AppName}. Click I agree to continue" 
 !insertmacro MUI_PAGE_LICENSE "tdmsystemfiles\LICENSE.txt"
 
 ;Custom Components Page
 !define MUI_PAGE_HEADER_TEXT "Choose Components"
-!define MUI_PAGE_HEADER_SUBTEXT "Choose wich features of ${AppName} you want to install."
+!define MUI_PAGE_HEADER_SUBTEXT "Choose the features of ${AppName} you wish to install."
 !insertmacro MUI_PAGE_COMPONENTS
 
 ;Custom Installer directorypage
 !define MUI_PAGE_HEADER_TEXT "Choose Install Location"
-!define MUI_PAGE_HEADER_SUBTEXT "Choose the folder which to install ${AppName}."
-DirText "This installer will install ${AppName} in the following folder.$\nTo install in a different folder, click Browse and select another folder.$\nClick Install to start the installation." \
+!define MUI_PAGE_HEADER_SUBTEXT "Choose the folder where you would like to install ${AppName}."
+DirText "This installer will install ${AppName} into the following folder.$\nTo install in a different folder, click Browse and select a different folder.$\nClick Install to begin the installation." \
   "Please specify the path of the game folder:"
 !insertmacro MUI_PAGE_DIRECTORY
 
@@ -119,10 +119,10 @@ DirText "This installer will install ${AppName} in the following folder.$\nTo in
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !insertmacro MUI_PAGE_INSTFILES
 
-;Custom Installer finischpage
+;Custom Installer finishpage
 !define MUI_FINISHPAGE_TITLE "Completing ${Appname} Setup"
 #!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the gamefolder and the updater on your system.$\n$\nTo complete the installation of ${AppName}, the updater needs to run in order to download the required game files."
-!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the gamefolder and the updater on your system.$\n$\nTo complete the installation of ${AppName},$\nthe required game-files needs to be downloaded.$\n$\nWhen you click on the finisch-button, the updater will be automatically started."
+!define MUI_FINISHPAGE_TEXT "${InstallerName} has created the gamefolder and installed the updater on your system.$\n$\nTo complete the installation of ${AppName},$\nthe required game files must now be downloaded.$\n$\nWhen you click on the finish button, the updater will run automatically."
 #!define MUI_FINISHPAGE_RUN
 #!define MUI_FINISHPAGE_RUN_TEXT "Launch ${AppName} Updater."
 #!define MUI_FINISHPAGE_RUN_CHECKED ;Checked checkbox to launch the updater
@@ -133,25 +133,25 @@ DirText "This installer will install ${AppName} in the following folder.$\nTo in
 ; pages for uninstaller
 ;Custom Uninstaller Welcome Page
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "graphics\darkmodinstaller-panel.bmp"
-!define MUI_WELCOMEPAGE_TITLE "${AppName} Uninstaller"
-!define MUI_WELCOMEPAGE_TEXT "This uninstaller will remove ${AppName} of your system.$\n$\n$\n$\n${AppName} Uninstaller by Freek 'Freyk' Borgerink."
+!define MUI_WELCOMEPAGE_TITLE "${AppName}"
+!define MUI_WELCOMEPAGE_TEXT "This uninstaller will remove ${AppName} off your system.$\n$\n$\n$\nUninstaller by Freek 'Freyk' Borgerink."
 !insertmacro MUI_UNPAGE_WELCOME
 
 ;custom page for confirm uninstallpage
-!define MUI_UNCONFIRMPAGE_TEXT_TOP "Are you sure to delete ${AppName} from your system?"
-!define MUI_UNCONFIRMPAGE_TEXT_LOCATION "Delete from location:"
+!define MUI_UNCONFIRMPAGE_TEXT_TOP "Are you sure you want to remove ${AppName} from your system?"
+!define MUI_UNCONFIRMPAGE_TEXT_LOCATION "Remove from location:"
 !insertmacro MUI_UNPAGE_CONFIRM
 
 ;custom page for detail uninstallpage
 !define MUI_PAGE_HEADER_TEXT "Uninstalling ${AppName}"
-!define MUI_PAGE_HEADER_SUBTEXT "Removing ${AppName} from your computer"
+!define MUI_PAGE_HEADER_SUBTEXT "Removing ${AppName} from your system"
 !define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Uninstalling ${AppName}"
-!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "Removing ${AppName} from your computer"
+!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "Removing ${AppName} from your system"
 !insertmacro MUI_UNPAGE_INSTFILES
 
 ;Custom Uninstaller FINISHPAGE Page
 !define MUI_FINISHPAGE_TITLE "${AppName} Uninstaller"
-!define MUI_FINISHPAGE_TEXT "${AppName} is succesfully removed.$\n$\nFor more information and news about ${AppName}, $\nvisit ${AppWebsite}"
+!define MUI_FINISHPAGE_TEXT "${AppName} has been succesfully removed.$\n$\nFor more information or news about ${AppName}, $\nvisit ${AppWebsite}"
 !insertmacro MUI_UNPAGE_FINISH
 
 ;--------------------------------
@@ -181,7 +181,7 @@ Section "Gamefolder and updater" SectionUpdater
 
 	; Registry settings	
 	; Object for the windows software update/remove section
-	!define REG_U "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkmod"
+	!define REG_U "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkMod"
 	WriteRegStr HKCU "${REG_U}" "DisplayName" "${AppName}"
 	WriteRegStr HKCU "${REG_U}" "DisplayVersion" "1.0"
 	WriteRegStr HKCU "${REG_U}" "UninstallString" '"$INSTDIR\${UninstallerFilename}"'
@@ -201,7 +201,7 @@ Section "Startmenu Shortcuts" SectionShortcuts
 
 	; create start menu shortcuts for tdm
 	CreateDirectory "$SMPROGRAMS\${AppName}" 
-	CreateShortCut "$SMPROGRAMS\${AppName}\Uninstall.lnk" "$INSTDIR\${UninstallerFilename}" "" "$INSTDIR\darkmod.ico" 0
+	CreateShortCut "$SMPROGRAMS\${AppName}\Uninstall ${AppName}.lnk" "$INSTDIR\${UninstallerFilename}" "" "$INSTDIR\darkmod.ico" 0
 	CreateShortCut "$SMPROGRAMS\${AppName}\License.lnk" "$INSTDIR\LICENSE.txt" "" "$INSTDIR\LICENSE.txt" 0
 	CreateShortCut "$SMPROGRAMS\${AppName}\AUTHORS.lnk" "$INSTDIR\AUTHORS.txt" "" "$INSTDIR\AUTHORS.txt" 0	
 	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" '--targetdir="$INSTDIR"' "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
@@ -232,7 +232,8 @@ FunctionEnd
 
 ;--------------------------------
 ;Uninstaller Section
-Section "un.The Dark Mod" SectionTDM
+;Section "un.The Dark Mod" SectionTDM
+Section "un.${AppName}" SectionTDM
 
 	SectionIn RO
 	
@@ -240,13 +241,13 @@ Section "un.The Dark Mod" SectionTDM
 	SetAutoClose false ;
 
 	; Remove registry keys  
-	DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkmod"
+	DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkMod"
 
 	; Remove files and uninstaller
 	RMDir /r $INSTDIR
 	
 	; Remove shortcuts, if any
-	RMDir /r "$SMPROGRAMS\The Dark Mod"
+	RMDir /r "$SMPROGRAMS\${AppName}"
 	Delete "$DESKTOP\${AppName}\${AppName} Updater.lnk" 
 	Delete "$DESKTOP\${AppName}.lnk"
 	Delete "$DESKTOP\${AppName} Updater.lnk"
@@ -256,11 +257,11 @@ SectionEnd
 
 ;Component Description
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-!insertmacro MUI_DESCRIPTION_TEXT ${SectionUpdater} "The Gamefolder and the updater. The Darkmod Updater is needed for downloading/updating the required gamefiles."
-!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcuts} "Startmenu shortcuts"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionUpdater} "The Gamefolder and the TDM updater. The updater is required for downloading/updating the required game files."
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcuts} "Start menu shortcuts"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsDesktop} "Desktop shortcuts"
 ;!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsAdmin} "Startmenu shortcuts with admin privileges"
-!insertmacro MUI_DESCRIPTION_TEXT ${SectionTDM} "The Darkmod"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionTDM} "${AppName}"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
@@ -272,6 +273,21 @@ SectionEnd
 /*
 ;--------------------------------
 Changes / bugfixes 
+
+v20160731
+- Gammar fixes and additional text from teh_saccade.
+  textlabel changes at pages: 
+  VIAddVersionKey, MUI_WELCOMEPAGE_TEXT, MUI_LICENSEPAGE, Componentspage, 
+  Location page, MUI_FINISHPAGE, un_welcomepage, unconfirmpage, unINSTFILESPAGE 
+  and MUI_FUNCTION_DESCRIPTION
+
+v20160728
+- Brandingname issue found and reported ("The Dark Mod" or "The Darkmod").
+- Changed Welcomescreen title for installer and uninstaller to ${AppName}. (request by Bikerdude)
+- added variable ${AppName} to caption (un)installer & filename shortcuts.
+- Added Grammerfixes by BikerDude to directorypage_HEADER_SUBTEXT, FINISHPAGE_TEXT, 
+  uninstaller_WELCOMEPAGE_TEXT, UNCONFIRMPAGE_TEXT_TOP, 
+  uninstaller_FINISHPAGE_TEXT and component description-SectionUpdater. 
 
 v20160718
 - Added targetdir-argument to shortcuts for updater.
@@ -327,6 +343,7 @@ v20160706
 - Changed BrandingText
 - Changed some textlabels for welcometext,Directory,Finischpage
 - Commentedout InstallerVersion in brandingtext, requested by Grayman 
+
 1.0.3
 - Added more text and graphic content in unstaller 
 - Changed the format of the installerscript, to make it more userfriendy.
@@ -335,9 +352,11 @@ v20160706
 - Changed several textlabels.
 - Changed the updater as a required component to install
 - Changed (Commented out) codelines to create a placeholder for tdm.exe  
+
 1.0.2
 - Changed location of game folder
 - Added privileges option
+
 1.0.1
 - Created the installer
 ================================
