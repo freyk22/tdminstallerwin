@@ -1,7 +1,7 @@
 /*
 ================================
 = The Darkmod installer script
-= v20160731
+= v20180722
 ================================
 = Author:
 = Freek "freyk" Borgerink
@@ -26,7 +26,7 @@ The following nsis plugin is needed for this script
 !define Appdir "c:\games\darkmod"   ; "c:\games\darkmod" or "$PROGRAMFILES\darkmod"
 
 !define InstallerName "${AppName} Installer"
-!define InstallerVersion "v20160731"
+!define InstallerVersion "v20180723"
 !define InstallerAuthor "Freek 'Freyk' Borgerink"
 !define InstallerFilename "TDM_installer.exe"
 !define UninstallerName "${AppName} Uninstaller"
@@ -39,6 +39,10 @@ The following nsis plugin is needed for this script
 ;Include Modern UI
 
 !include "MUI2.nsh"
+
+;detection 32 or 64 bit.
+!include LogicLib.nsh
+!include x64.nsh
 
 ;--------------------------------
 ;General
@@ -69,7 +73,7 @@ BrandingText "${InstallerName} ${InstallerVersion}"
 !define MUI_HEADERIMAGE_BITMAP "graphics\darkmodinstaller-header.bmp"
 
 ;show installation logs during (un)installation (show/hide/none)
-ShowInstDetails hide
+ShowInstDetails show
 
 ;Installer file-description
 VIProductVersion "0.0.0.0"
@@ -121,13 +125,12 @@ DirText "This installer will install ${AppName} into the following folder.$\nTo 
 
 ;Custom Installer finishpage
 !define MUI_FINISHPAGE_TITLE "Completing ${Appname} Setup"
-#!define MUI_FINISHPAGE_TEXT "${InstallerName} has installed the gamefolder and the updater on your system.$\n$\nTo complete the installation of ${AppName}, the updater needs to run in order to download the required game files."
 !define MUI_FINISHPAGE_TEXT "${InstallerName} has created the gamefolder and installed the updater on your system.$\n$\nTo complete the installation of ${AppName},$\nthe required game files must now be downloaded.$\n$\nWhen you click on the finish button, the updater will run automatically."
-#!define MUI_FINISHPAGE_RUN
-#!define MUI_FINISHPAGE_RUN_TEXT "Launch ${AppName} Updater."
-#!define MUI_FINISHPAGE_RUN_CHECKED ;Checked checkbox to launch the updater
-#!define MUI_FINISHPAGE_RUN_FUNCTION "fncUpdaterRun" ;execute function to run the updater
-!define MUI_PAGE_CUSTOMFUNCTION_LEAVE fncUpdaterRun
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_TEXT "Launch ${AppName} Updater."
+!define MUI_FINISHPAGE_RUN_CHECKED ;Checked checkbox to launch the updater
+!define MUI_FINISHPAGE_RUN_FUNCTION "fncUpdaterRun" ;execute function to run the updater
+;!define MUI_PAGE_CUSTOMFUNCTION_LEAVE fncUpdaterRun
 !insertmacro MUI_PAGE_FINISH
 
 ; pages for uninstaller
@@ -162,7 +165,28 @@ DirText "This installer will install ${AppName} into the following folder.$\nTo 
 ;--------------------------------
 ;Installer Sections
 
+Function .onInit
+	;detect if system is 64 bit and change default instdir
+	${If} ${RunningX64}
+		StrCpy $InstDir "$PROGRAMFILES64\darkmod"
+	${Else}
+		StrCpy $InstDir "$PROGRAMFILES\darkmod"
+	${EndIf}
+FunctionEnd
+
+
+
+;Function to launch te updater
+Function fncUpdaterRun
+	
+	; Execute the updater with arguments
+	ExecShell "" "$INSTDIR\tdm_update.exe" '--noselfupdate --targetdir="$INSTDIR"'
+
+FunctionEnd
+
+
 ;Section "The Dark mod (Updater and Gamefolder)" SectionUpdater
+
 Section "Gamefolder and updater" SectionUpdater
 	
 	;this section is requiered
@@ -171,14 +195,15 @@ Section "Gamefolder and updater" SectionUpdater
 	; Set output path is the installation directory.
 	SetOutPath $INSTDIR
 
-	; Get the TDM files from here and copy to $INSTDIR
-	File /r "tdmsystemfiles\"
-
 	; Give all users Fullacces to the TDM folder,
 	; So tdm and updater can write files to it.
-	AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
+	;AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
+	AccessControl::GrantOnFile  "$INSTDIR" "(S-1-5-32-545)" "FullAccess"
 	AccessControl::EnableFileInheritance $INSTDIR		
-
+	
+	; Get the TDM files from here and copy to $INSTDIR
+	File /r "tdmsystemfiles\"
+	
 	; Registry settings	
 	; Object for the windows software update/remove section
 	!define REG_U "Software\Microsoft\Windows\CurrentVersion\Uninstall\TheDarkMod"
@@ -206,27 +231,79 @@ Section "Startmenu Shortcuts" SectionShortcuts
 	CreateShortCut "$SMPROGRAMS\${AppName}\AUTHORS.lnk" "$INSTDIR\AUTHORS.txt" "" "$INSTDIR\AUTHORS.txt" 0	
 	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" '--targetdir="$INSTDIR"' "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
 	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	${If} ${RunningX64}
+		CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}-64bit.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	${EndIf}
   
 SectionEnd
 
 
-
+;Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 
 	; create Desktop shortcuts for tdm
 	CreateShortCut "$DESKTOP\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" '--targetdir="$INSTDIR"' "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
 	CreateShortCut "$DESKTOP\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	; create Desktop shortcuts for tdm 64 bit
+	${If} ${RunningX64}
+		CreateShortCut "$DESKTOP\${AppName}-64bit.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	${EndIf}  
 
 SectionEnd
 
-
-;Function to launch te updater
-Function fncUpdaterRun
+Section /o "TEST - Install Visual C++ (if needed)" SectionVCSInstall
 	
-	; Execute the updater with arguments
-	ExecShell "" "$INSTDIR\tdm_update.exe" '--noselfupdate --targetdir="$INSTDIR"'
+	;This section installs Visual C++ studio files (if needed)
+	
+	;this section is requiered
+	;SectionIn RO
+	
+	DetailPrint "Detecting if  required visual studio files are installed"
+	ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\VC\Runtimes\x64" "Installed"
+	ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\VC\Runtimes\x86" "Installed"
+	${If} $R1 != "1"
+		${AndIf} $R2 != "1"
+			DetailPrint " visual studio files not installed"
+			DetailPrint "Downloading latest Microsoft Visual C++ Redistributable"
+			SetOutPath $INSTDIR			
+			${If} ${RunningX64}
+				DetailPrint "64-bit Windows Detected"
+				DetailPrint "Visualstudio 64-bit setup - Downloading"
+				inetc::get "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x86.exe"
+				DetailPrint "Visualstudio 64-bit setup - Running"
+				;ExecWait '$INSTDIR\vc_redist.x64.exe /s /v" /qn"'
+			${EndIf}  
+			${IfNot} ${RunningX64}
+				DetailPrint "32-bit Windows Detected"
+				DetailPrint "Visualstudio 32-bit setup - Downloading"
+				inetc::get "https://aka.ms/vs/15/release/vc_redist.x86.exe" "$INSTDIR\vc_redist.x86.exe"
+				DetailPrint "Visualstudio 32-bit setup - Running"
+				;ExecWait '$INSTDIR\vc_redist.x86.exe /s /v" /qn"'
+			${EndIf}   
+		${Else}
+		DetailPrint "VisualStudio DLLs are is installed."
+	${EndIf}
+		
+SectionEnd
 
-FunctionEnd
+Section /o "TEST - Add Shortcuts in Steam" SectionInstallNonSteamGameShortcuts
+	
+	;this section is requiered
+	;SectionIn RO
+	
+	;This section asks the user to add tdm in steam.
+	
+	DetailPrint "Steam - Opening client"
+	DetailPrint "Steam - Opening Community page"
+	ExecShell "open" "steam://openurl/https://steamcommunity.com/groups/thedarkmod"
+	DetailPrint "Steam - Requesting user to adding tdm as nonsteamgame"
+	MessageBox MB_OK "Please login in steam$\r$\nand select the the dark mod executable and updater in the list$\r$\nOr select them using the browse button"
+	ExecShell "open" "steam://AddNonSteamGame"
+	
+	
+SectionEnd
+
+
 
 
 
@@ -261,6 +338,8 @@ SectionEnd
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcuts} "Start menu shortcuts"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsDesktop} "Desktop shortcuts"
 ;!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsAdmin} "Startmenu shortcuts with admin privileges"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionVCSInstall} "This installs required visual studio files (if needed)"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallNonSteamGameShortcuts} "This creates shortcut in Steam to the game"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionTDM} "${AppName}"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
@@ -268,60 +347,34 @@ SectionEnd
 ;--------------------------------
 ;END of script file
 
-
-
 /*
 ;--------------------------------
 Changes / bugfixes 
 
-v20160731
-- Gammar fixes and additional text from teh_saccade.
-  textlabel changes at pages: 
-  VIAddVersionKey, MUI_WELCOMEPAGE_TEXT, MUI_LICENSEPAGE, Componentspage, 
-  Location page, MUI_FINISHPAGE, un_welcomepage, unconfirmpage, unINSTFILESPAGE 
-  and MUI_FUNCTION_DESCRIPTION
+1.0.1
+- Created the installer
 
-v20160728
-- Brandingname issue found and reported ("The Dark Mod" or "The Darkmod").
-- Changed Welcomescreen title for installer and uninstaller to ${AppName}. (request by Bikerdude)
-- added variable ${AppName} to caption (un)installer & filename shortcuts.
-- Added Grammerfixes by BikerDude to directorypage_HEADER_SUBTEXT, FINISHPAGE_TEXT, 
-  uninstaller_WELCOMEPAGE_TEXT, UNCONFIRMPAGE_TEXT_TOP, 
-  uninstaller_FINISHPAGE_TEXT and component description-SectionUpdater. 
+1.0.2
+- Changed location of game folder
+- Added privileges option
 
-v20160718
-- Added targetdir-argument to shortcuts for updater.
-- removed the runafterinstall-checkbox on finischpage. The updater will be automaticly started when the user hits the finisch button.
+1.0.3
+- Added more text and graphic content in unstaller 
+- Changed the format of the installerscript, to make it more userfriendy.
+- Added shortcut in Software Change/remove
+- Added Component Descriptions
+- Changed several textlabels.
+- Changed the updater as a required component to install
+- Changed (Commented out) codelines to create a placeholder for tdm.exe  
 
-v20160717a
-- Added setting "SetAutoClose false" to show uninstall details.
-- Added headers to uninstall page.
-- added quotes to targetdir-argument of the updater in fncUpdaterRun. So the updater dont crash when the path has spaces. 
-
-v20160717
-- Changed Textlabels on all installer pages. (because tdm-installer doesnt install itself)
-- Changed Content of Welcome screen.
-- Added variable names to some textlabels.
-- Changed that the logscreen in the instfiles page will be hidden.
-- Tried to hide the runafterinstall-checkbox on finischpage
-- Changed content welcomescreen uninstaller.
-- Changed labels from all uninstaller pages
-- Removed uninstaller components page
-- Changed some comments in code.
-
-v20160713
-- added tdmupdate version 0.65
-
-v20160712
-- Changed executionlevel to "admin" (to run the installer with elevated permissions), discussed with bikerdude
-
-
-v20160709
-- Changed executionlevel to "user". To write create a tdm-folder in program files, run installer as admin.
-- Removed shelllink from project
-- removed argument "targetdir" from execshell tdm updater, because if the installer started with elevated permissions, it crashes the updater.
-- Changed VIAddVersionKey versionnumbers
-
+1.0.4 (20160313)
+- Changed the startmenu shortcut for the updater.
+- Added more info to welcometext
+- Added an option to install desktop shortcuts
+- Added code to remove the desktop shortcut files
+- Changed BrandingText
+- Changed some textlabels for welcometext,Directory,Finischpage
+- Commentedout InstallerVersion in brandingtext, requested by Grayman 
 
 v20160706
 - removed versionnumbers of the game.
@@ -335,29 +388,66 @@ v20160706
 - added arguments to execshell
 - Code cleanup.
 
-1.0.4 (20160313)
-- Changed the startmenu shortcut for the updater.
-- Added more info to welcometext
-- Added an option to install desktop shortcuts
-- Added code to remove the desktop shortcut files
-- Changed BrandingText
-- Changed some textlabels for welcometext,Directory,Finischpage
-- Commentedout InstallerVersion in brandingtext, requested by Grayman 
+v20160709
+- Changed executionlevel to "user". To write create a tdm-folder in program files, run installer as admin.
+- Removed shelllink from project
+- removed argument "targetdir" from execshell tdm updater, because if the installer started with elevated permissions, it crashes the updater.
+- Changed VIAddVersionKey versionnumbers
 
-1.0.3
-- Added more text and graphic content in unstaller 
-- Changed the format of the installerscript, to make it more userfriendy.
-- Added shortcut in Software Change/remove
-- Added Component Descriptions
-- Changed several textlabels.
-- Changed the updater as a required component to install
-- Changed (Commented out) codelines to create a placeholder for tdm.exe  
+v20160712
+- Changed executionlevel to "admin" (to run the installer with elevated permissions), discussed with bikerdude
 
-1.0.2
-- Changed location of game folder
-- Added privileges option
+v20160713
+- added tdmupdate version 0.65
 
-1.0.1
-- Created the installer
+v20160717
+- Changed Textlabels on all installer pages. (because tdm-installer doesnt install itself)
+- Changed Content of Welcome screen.
+- Added variable names to some textlabels.
+- Changed that the logscreen in the instfiles page will be hidden.
+- Tried to hide the runafterinstall-checkbox on finischpage
+- Changed content welcomescreen uninstaller.
+- Changed labels from all uninstaller pages
+- Removed uninstaller components page
+- Changed some comments in code.
+
+v20160717a
+- Added setting "SetAutoClose false" to show uninstall details.
+- Added headers to uninstall page.
+- added quotes to targetdir-argument of the updater in fncUpdaterRun. So the updater dont crash when the path has spaces. 
+
+v20160718
+- Added targetdir-argument to shortcuts for updater.
+- removed the runafterinstall-checkbox on finischpage. The updater will be automaticly started when the user hits the finisch button.
+
+v20160728
+- Brandingname issue found and reported ("The Dark Mod" or "The Darkmod").
+- Changed Welcomescreen title for installer and uninstaller to ${AppName}. (request by Bikerdude)
+- added variable ${AppName} to caption (un)installer & filename shortcuts.
+- Added Grammerfixes by BikerDude to directorypage_HEADER_SUBTEXT, FINISHPAGE_TEXT, 
+  uninstaller_WELCOMEPAGE_TEXT, UNCONFIRMPAGE_TEXT_TOP, 
+  uninstaller_FINISHPAGE_TEXT and component description-SectionUpdater. 
+  
+v20160731
+- Gammar fixes and additional text from teh_saccade.
+  textlabel changes at pages: 
+  VIAddVersionKey, MUI_WELCOMEPAGE_TEXT, MUI_LICENSEPAGE, Componentspage, 
+  Location page, MUI_FINISHPAGE, un_welcomepage, unconfirmpage, unINSTFILESPAGE 
+  and MUI_FUNCTION_DESCRIPTION
+  
+v20180703
+- Added x64-bit detection
+- Updated Updater from 0.64 to 0.69
+- Updated Thedarkmod.exe x86 to 2.06
+- Added Thedarkmod.exe x64 for 2.06 (and shortcuts)
+- Added plugin inetc to download files on a https site
+
+v20180722
+- Added lines to set folder permissions, using AccessControl
+- Changed finisch page to load tdm updater, only if the checkbox is checked.
+- Added section to add a nonsteamgame shortcut to tdm in steam.
+
+v20180723
+- Changed default instdir to program files. (with 64bit system detection)
 ================================
 */
