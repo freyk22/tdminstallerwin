@@ -1,7 +1,6 @@
 
 The darkmodinstaller (windows) is created by
 Freek "Freyk" Borgerink
-https://sites.google.com/site/freykssite01/
 
 Created for The Dark Mod (http://www.thedarkmod.com)
 Created with Nsis 3.04
