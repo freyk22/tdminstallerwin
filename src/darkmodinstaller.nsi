@@ -14,8 +14,10 @@ And creates shortcuts and a uninstaller.
 
 =================
 Required nsis plugins
-The following nsis plugin is needed for this script
+The following nsis plugins are needed for this script
 - AccessControl, http://nsis.sourceforge.net/AccessControl_plug-in
+- zipdll, https://nsis.sourceforge.io/ZipDLL_plug-in
+- Inetc, https://nsis.sourceforge.io/Inetc_plug-in
 ===================
 */
 
@@ -24,9 +26,10 @@ The following nsis plugin is needed for this script
 !define AppCreator "Broken Glass Studios"
 !define AppWebsite "http://www.thedarkmod.com"
 !define Appdir "c:\games\darkmod"   ; "c:\games\darkmod" or "$PROGRAMFILES\darkmod"
+!define Updateronlinelocation "http://darkmod.taaaki.za.net/release/tdm_update_win.zip"
 
 !define InstallerName "${AppName} Installer"
-!define InstallerVersion "v20180723"
+!define InstallerVersion "v20181125"
 !define InstallerAuthor "Freek 'Freyk' Borgerink"
 !define InstallerFilename "TDM_installer.exe"
 !define UninstallerName "${AppName} Uninstaller"
@@ -117,7 +120,6 @@ DirText "This installer will install ${AppName} into the following folder.$\nTo 
   "Please specify the path of the game folder:"
 !insertmacro MUI_PAGE_DIRECTORY
 
-
 ;Custom installer installerfiles page
 !define MUI_PROGRESSBAR smooth
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -137,7 +139,7 @@ DirText "This installer will install ${AppName} into the following folder.$\nTo 
 ;Custom Uninstaller Welcome Page
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "graphics\darkmodinstaller-panel.bmp"
 !define MUI_WELCOMEPAGE_TITLE "${AppName}"
-!define MUI_WELCOMEPAGE_TEXT "This uninstaller will remove ${AppName} off your system.$\n$\n$\n$\nUninstaller by Freek 'Freyk' Borgerink."
+!define MUI_WELCOMEPAGE_TEXT "This uninstaller will remove ${AppName} from your system.$\n$\n$\n$\nUninstaller by Freek 'Freyk' Borgerink."
 !insertmacro MUI_UNPAGE_WELCOME
 
 ;custom page for confirm uninstallpage
@@ -175,9 +177,9 @@ Function .onInit
 FunctionEnd
 
 
-
-;Function to launch te updater
 Function fncUpdaterRun
+	
+	; Function to launch te updater	
 	
 	; Execute the updater with arguments
 	ExecShell "" "$INSTDIR\tdm_update.exe" '--noselfupdate --targetdir="$INSTDIR"'
@@ -186,7 +188,6 @@ FunctionEnd
 
 
 ;Section "The Dark mod (Updater and Gamefolder)" SectionUpdater
-
 Section "Gamefolder and updater" SectionUpdater
 	
 	;this section is requiered
@@ -195,7 +196,7 @@ Section "Gamefolder and updater" SectionUpdater
 	; Set output path is the installation directory.
 	SetOutPath $INSTDIR
 
-	; Give all users Fullacces to the TDM folder,
+	; Give all users Fullacces to the TDM gamefolder,
 	; So tdm and updater can write files to it.
 	;AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
 	AccessControl::GrantOnFile  "$INSTDIR" "(S-1-5-32-545)" "FullAccess"
@@ -213,11 +214,51 @@ Section "Gamefolder and updater" SectionUpdater
 	WriteRegStr HKCU "${REG_U}" "Publisher" "${AppCreator}"
 	WriteRegStr HKCU "${REG_U}" "URLInfoAbout" "${AppWebsite}"
 	WriteRegStr HKCU "${REG_U}" "DisplayIcon" "$INSTDIR\TDM_icon.ico"  
-	
-	
+		
 	; Create uninstaller
 	WriteUninstaller "$INSTDIR\${UninstallerFilename}"
 
+	; Setting up TDM Updater
+    ; Detect that if the updater exists in the folder of the installer
+    DetailPrint "Updaterfilecheck - Searching for updater"
+	IfFileExists $EXEDIR\tdm_update.exe updater_found updater_not_found
+	;If updater is found
+    updater_found:
+		DetailPrint "Updaterfilecheck - found external updater"
+        CopyFiles $EXEDIR\tdm_update.exe $INSTDIR\tdm_update.exe
+        goto end_of_UpdaterCheck ;
+	;If updater is not found
+    updater_not_found:
+		DetailPrint "Updaterfilecheck - cannot find external updater"
+		#Download updater
+		
+		#Look in file for location.
+		#Var Updateronlinelocation
+		#FileOpen $4 "..\updaterlocation.txt" r
+		#FileRead $4 $Updateronlinelocation
+		#FileClose $4
+		
+		DetailPrint "Updaterfilecheck - Downloading,.."
+		NSISdl::download "${Updateronlinelocation}" "$INSTDIR\tdm_update_win.zip"
+		Pop $R0 ;Get the return value
+		${If} $R0 != "success"
+			DetailPrint "Updaterfilecheck - Error: Download failed: $R0"
+			DetailPrint "Updaterfilecheck - using internal tdmupdater"
+			Rename $INSTDIR\tdm_update-069.xee $INSTDIR\tdm_update.exe
+			goto end_of_UpdaterCheck ;			
+		${EndIf}
+		${If} $R0 = "success"
+			DetailPrint "Updaterfilecheck - Updater downloaded"
+			DetailPrint "Updaterfilecheck - Extracting updater to folder $INSTDIR"
+			ZipDLL::extractall "$INSTDIR\tdm_update_win.zip" "$INSTDIR"
+			DetailPrint "Updaterfilecheck - removing old zip"
+			Delete "$INSTDIR\tdm_update_win.zip"
+			Delete "$INSTDIR\tdm_update-069.xee"
+			goto end_of_UpdaterCheck ;
+		${EndIf}
+		
+    end_of_UpdaterCheck:
+		DetailPrint "Updaterfilecheck - done"
 
 SectionEnd
 
@@ -250,6 +291,7 @@ Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 	${EndIf}  
 
 SectionEnd
+
 
 Section /o "TEST - Install Visual C++ (if needed)" SectionVCSInstall
 	
@@ -286,20 +328,18 @@ Section /o "TEST - Install Visual C++ (if needed)" SectionVCSInstall
 		
 SectionEnd
 
-Section /o "TEST - Add Shortcuts in Steam" SectionInstallNonSteamGameShortcuts
+
+Section /o "TEST - Add Shortcut in Steam" SectionInstallNonSteamGameShortcuts
 	
 	;this section is requiered
 	;SectionIn RO
 	
 	;This section asks the user to add tdm in steam.
-	
-	DetailPrint "Steam - Opening client"
-	DetailPrint "Steam - Opening Community page"
+	DetailPrint "Steam - Opening client and Community page"
 	ExecShell "open" "steam://openurl/https://steamcommunity.com/groups/thedarkmod"
 	DetailPrint "Steam - Requesting user to adding tdm as nonsteamgame"
 	MessageBox MB_OK "Please login in steam$\r$\nand select the the dark mod executable and updater in the list$\r$\nOr select them using the browse button"
 	ExecShell "open" "steam://AddNonSteamGame"
-	
 	
 SectionEnd
 
@@ -449,5 +489,9 @@ v20180722
 
 v20180723
 - Changed default instdir to program files. (with 64bit system detection)
+
+v20181125
+- added an option to use the tdmupdater inside the folder of the installer. 
+ (so there is no need to compile the updater if, there is a new version of the updater)
 ================================
 */
