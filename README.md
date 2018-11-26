@@ -13,7 +13,7 @@ Created with Nsis 3.04
 
 1. Extract the zip file   
 2. Install nsis from the nssis-tools folder
-3. Extract Shelllink.dll from "nssis-tools\Shelllink.zip\Plugins\Shelllink.dll" to "C:\Program Files\NSIS\Plugins\x86-ansi\" and "C:\Program Files\NSIS\Plugins\x86-unicode"
+3. install the plugins from the nsis-tools folder.
 4.END
 
 -- Compiling the script --
