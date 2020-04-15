@@ -1,7 +1,7 @@
 /*
 ================================
 = The Darkmod installer script
-= v20180722
+= v20200415
 ================================
 = Author:
 = Freek "freyk" Borgerink
