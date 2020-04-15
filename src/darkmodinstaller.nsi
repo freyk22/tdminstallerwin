@@ -29,7 +29,7 @@ The following nsis plugins are needed for this script
 !define Updateronlinelocation "http://darkmod.taaaki.za.net/release/tdm_update_win.zip"
 
 !define InstallerName "${AppName} Installer"
-!define InstallerVersion "v20181125"
+!define InstallerVersion "v20200415"
 !define InstallerAuthor "Freek 'Freyk' Borgerink"
 !define InstallerFilename "TDM_installer.exe"
 !define UninstallerName "${AppName} Uninstaller"
@@ -168,12 +168,16 @@ DirText "This installer will install ${AppName} into the following folder.$\nTo 
 ;Installer Sections
 
 Function .onInit
+
+	/*
 	;detect if system is 64 bit and change default instdir
 	${If} ${RunningX64}
 		StrCpy $InstDir "$PROGRAMFILES64\darkmod"
 	${Else}
 		StrCpy $InstDir "$PROGRAMFILES\darkmod"
 	${EndIf}
+	*/
+	
 FunctionEnd
 
 
@@ -218,47 +222,42 @@ Section "Gamefolder and updater" SectionUpdater
 	; Create uninstaller
 	WriteUninstaller "$INSTDIR\${UninstallerFilename}"
 
-	; Setting up TDM Updater
-    ; Detect that if the updater exists in the folder of the installer
-    DetailPrint "Updaterfilecheck - Searching for updater"
-	IfFileExists $EXEDIR\tdm_update.exe updater_found updater_not_found
-	;If updater is found
-    updater_found:
-		DetailPrint "Updaterfilecheck - found external updater"
-        CopyFiles $EXEDIR\tdm_update.exe $INSTDIR\tdm_update.exe
-        goto end_of_UpdaterCheck ;
-	;If updater is not found
-    updater_not_found:
-		DetailPrint "Updaterfilecheck - cannot find external updater"
-		#Download updater
-		
-		#Look in file for location.
-		#Var Updateronlinelocation
-		#FileOpen $4 "..\updaterlocation.txt" r
-		#FileRead $4 $Updateronlinelocation
-		#FileClose $4
-		
-		DetailPrint "Updaterfilecheck - Downloading,.."
+
+	; Setting up TDM Updater	
+	;detect the updater
+	DetailPrint "TDMUpdatercheck - Detect"
+	IfFileExists $INSTDIR\tdm_update.exe tdmupdaterexec_found tdmupdaterexec_not_found	
+	
+	;if tdm updater executable found
+	tdmupdaterexec_found:
+	DetailPrint "TDMUpdatercheck - TDM Updater detected"
+		goto end_of_UpdaterCheck ;
+	
+	;if tdm updater executable not found
+	tdmupdaterexec_not_found:
+		DetailPrint "TDMUpdatercheck - Downloading most recent TDM Updater"
 		NSISdl::download "${Updateronlinelocation}" "$INSTDIR\tdm_update_win.zip"
-		Pop $R0 ;Get the return value
-		${If} $R0 != "success"
-			DetailPrint "Updaterfilecheck - Error: Download failed: $R0"
-			DetailPrint "Updaterfilecheck - using internal tdmupdater"
-			Rename $INSTDIR\tdm_update-069.xee $INSTDIR\tdm_update.exe
-			goto end_of_UpdaterCheck ;			
-		${EndIf}
-		${If} $R0 = "success"
-			DetailPrint "Updaterfilecheck - Updater downloaded"
-			DetailPrint "Updaterfilecheck - Extracting updater to folder $INSTDIR"
+	
+		; Detect that if the updater exists in the folder of the installer
+		DetailPrint "TDMUpdatercheck - Searching for updater"
+		IfFileExists $INSTDIR\tdm_update_win.zip updater_found updater_not_found
+		
+		;If updater is found
+		updater_found:
+			DetailPrint "TDMUpdatercheck - found recent version of TDM updater"
 			ZipDLL::extractall "$INSTDIR\tdm_update_win.zip" "$INSTDIR"
-			DetailPrint "Updaterfilecheck - removing old zip"
 			Delete "$INSTDIR\tdm_update_win.zip"
-			Delete "$INSTDIR\tdm_update-069.xee"
 			goto end_of_UpdaterCheck ;
-		${EndIf}
+		
+		;If updater is not found
+		updater_not_found:
+			DetailPrint "TDMUpdatercheck - cannot find recent version of TDM updater"
+			DetailPrint "TDMUpdatercheck - using old updater"
+			CopyFiles "$INSTDIR\tdm_update_old.exe" $INSTDIR\tdm_update.exe
+			goto end_of_UpdaterCheck ;
 		
     end_of_UpdaterCheck:
-		DetailPrint "Updaterfilecheck - done"
+		DetailPrint "TDMUpdatercheck - done";
 
 SectionEnd
 
@@ -293,7 +292,7 @@ Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 SectionEnd
 
 
-Section /o "TEST - Install Visual C++ (if needed)" SectionVCSInstall
+Section /o "TEST - Visual C++ (if needed)" SectionVCSInstall
 	
 	;This section installs Visual C++ studio files (if needed)
 	
@@ -311,14 +310,16 @@ Section /o "TEST - Install Visual C++ (if needed)" SectionVCSInstall
 			${If} ${RunningX64}
 				DetailPrint "64-bit Windows Detected"
 				DetailPrint "Visualstudio 64-bit setup - Downloading"
-				inetc::get "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x86.exe"
+				;inetc::get "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
+				NSISdl::download "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
 				DetailPrint "Visualstudio 64-bit setup - Running"
 				;ExecWait '$INSTDIR\vc_redist.x64.exe /s /v" /qn"'
 			${EndIf}  
 			${IfNot} ${RunningX64}
 				DetailPrint "32-bit Windows Detected"
 				DetailPrint "Visualstudio 32-bit setup - Downloading"
-				inetc::get "https://aka.ms/vs/15/release/vc_redist.x86.exe" "$INSTDIR\vc_redist.x86.exe"
+				;inetc::get "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
+				NSISdl::download "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
 				DetailPrint "Visualstudio 32-bit setup - Running"
 				;ExecWait '$INSTDIR\vc_redist.x86.exe /s /v" /qn"'
 			${EndIf}   
@@ -327,6 +328,45 @@ Section /o "TEST - Install Visual C++ (if needed)" SectionVCSInstall
 	${EndIf}
 		
 SectionEnd
+
+
+Section /o "TEST - Open Audio Library" SectionInstallOpenal
+	
+	;This section installs Open Audio Library (if needed)
+	
+	;this section is required
+	;SectionIn RO
+	
+	DetailPrint "Open Audio Library - Detect Audio library"
+	IfFileExists "$WINDIR\System32\OpenAL32.dll" oalsystem_found oalsystem_not_found
+	
+	oalsystem_found:
+		DetailPrint "Open Audio Library - Detected"
+		goto end_of_oalinstCheck ;
+	
+	oalsystem_not_found:
+	DetailPrint "Open Audio Library - Not Detected"
+	DetailPrint "Open Audio Library - Downloading"
+	NSISdl::download "https://www.openal.org/downloads/oalinst.zip" "$INSTDIR\oalinst.zip"
+	IfFileExists "$INSTDIR\oalinst.zip" oalinst_found oalinst_not_found
+	oalinst_found:
+		DetailPrint "Open Audio Library - Extract installer"
+		ZipDLL::extractall "$INSTDIR\oalinst.zip" "$INSTDIR"
+		DetailPrint "Open Audio Library - remove temp files"
+		Delete "$INSTDIR\oalinst.zip"
+		DetailPrint "Open Audio Library - running installation silent"
+		ExecWait '$INSTDIR\oalinst.exe /SILENT"'
+		Delete "$INSTDIR\oalinst.exe"
+        goto end_of_oalinstCheck ;
+	oalinst_not_found:
+		DetailPrint "Open Audio Library - not downloaded"
+		goto end_of_oalinstCheck ;
+	
+	end_of_oalinstCheck:
+		DetailPrint "Open Audio Library - done"
+	
+SectionEnd
+
 
 
 Section /o "TEST - Add Shortcut in Steam" SectionInstallNonSteamGameShortcuts
@@ -379,6 +419,7 @@ SectionEnd
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsDesktop} "Desktop shortcuts"
 ;!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsAdmin} "Startmenu shortcuts with admin privileges"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionVCSInstall} "This installs required visual studio files (if needed)"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallOpenal} "This Installs Open Audio Library for 3D Audio"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallNonSteamGameShortcuts} "This creates shortcut in Steam to the game"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionTDM} "${AppName}"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
@@ -493,5 +534,9 @@ v20180723
 v20181125
 - added an option to use the tdmupdater inside the folder of the installer. 
  (so there is no need to compile the updater if, there is a new version of the updater)
+ 
+v20200415
+- Added feature that installs Open Audio Library
+- Repaired download urls 
 ================================
 */
