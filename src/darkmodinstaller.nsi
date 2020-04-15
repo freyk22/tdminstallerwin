@@ -1,7 +1,7 @@
 /*
 ================================
 = The Darkmod installer script
-= v20200415
+= v20180722
 ================================
 = Author:
 = Freek "freyk" Borgerink
@@ -192,7 +192,7 @@ FunctionEnd
 
 
 ;Section "The Dark mod (Updater and Gamefolder)" SectionUpdater
-Section "Gamefolder and updater" SectionUpdater
+Section "Gamefolder, updater and uninstaller" SectionUpdater
 	
 	;this section is requiered
 	SectionIn RO
@@ -230,7 +230,8 @@ Section "Gamefolder and updater" SectionUpdater
 	
 	;if tdm updater executable found
 	tdmupdaterexec_found:
-	DetailPrint "TDMUpdatercheck - TDM Updater detected"
+		DetailPrint "TDMUpdatercheck - TDM Updater detected"
+		Delete "$INSTDIR\tdm_update_old.exe"
 		goto end_of_UpdaterCheck ;
 	
 	;if tdm updater executable not found
@@ -247,6 +248,7 @@ Section "Gamefolder and updater" SectionUpdater
 			DetailPrint "TDMUpdatercheck - found recent version of TDM updater"
 			ZipDLL::extractall "$INSTDIR\tdm_update_win.zip" "$INSTDIR"
 			Delete "$INSTDIR\tdm_update_win.zip"
+			Delete "$INSTDIR\tdm_update_old.exe"
 			goto end_of_UpdaterCheck ;
 		
 		;If updater is not found
@@ -254,13 +256,13 @@ Section "Gamefolder and updater" SectionUpdater
 			DetailPrint "TDMUpdatercheck - cannot find recent version of TDM updater"
 			DetailPrint "TDMUpdatercheck - using old updater"
 			CopyFiles "$INSTDIR\tdm_update_old.exe" $INSTDIR\tdm_update.exe
+			Delete "$INSTDIR\tdm_update_old.exe"
 			goto end_of_UpdaterCheck ;
 		
     end_of_UpdaterCheck:
 		DetailPrint "TDMUpdatercheck - done";
 
 SectionEnd
-
 
 Section "Startmenu Shortcuts" SectionShortcuts
 
@@ -292,80 +294,104 @@ Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 SectionEnd
 
 
-Section /o "TEST - Visual C++ (if needed)" SectionVCSInstall
+Section "Visual C++ Library (if needed)" SectionVCSInstall
 	
 	;This section installs Visual C++ studio files (if needed)
 	
 	;this section is requiered
-	;SectionIn RO
+	SectionIn RO
 	
-	DetailPrint "Detecting if  required visual studio files are installed"
-	ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\VC\Runtimes\x64" "Installed"
-	ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\VC\Runtimes\x86" "Installed"
-	${If} $R1 != "1"
-		${AndIf} $R2 != "1"
-			DetailPrint " visual studio files not installed"
-			DetailPrint "Downloading latest Microsoft Visual C++ Redistributable"
-			SetOutPath $INSTDIR			
-			${If} ${RunningX64}
-				DetailPrint "64-bit Windows Detected"
-				DetailPrint "Visualstudio 64-bit setup - Downloading"
+	DetailPrint "Visual C++ Install - Detecting files"
+	
+	;if system is 64 bit
+	${If} ${RunningX64}
+		DetailPrint "Visual C++ Install - 64-bit system Detected"
+		DetailPrint "Visual C++ Install - Detecting Library 64"
+		ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\VC\Runtimes\x64" "Installed"
+		${If} $R1 != "1"
+				DetailPrint "Visual C++ Install - Library not found"
+				DetailPrint "Visual C++ Install - Downloading 64-bit setup"
 				;inetc::get "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
 				NSISdl::download "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
-				DetailPrint "Visualstudio 64-bit setup - Running"
+				DetailPrint "Visual C++ Install - Running 64-bit setup"
 				;ExecWait '$INSTDIR\vc_redist.x64.exe /s /v" /qn"'
-			${EndIf}  
-			${IfNot} ${RunningX64}
-				DetailPrint "32-bit Windows Detected"
-				DetailPrint "Visualstudio 32-bit setup - Downloading"
+				DetailPrint "Visual C++ Install - library 64 bit is installed"
+				goto end_of_vcinstall ;
+		${EndIf}
+		${Else}
+			DetailPrint "Visual C++ Install - is already installed."
+			goto end_of_vcinstall ;			
+	${EndIf}  
+	
+	;if system is 32 bit
+	${IfNot} ${RunningX64}
+			DetailPrint "Visual C++ Install - 32-bit system  Detected"
+			DetailPrint "Visual C++ Install - Detecting Library 32"
+			ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\VC\Runtimes\x86" "Installed"
+			${If} $R2 != "1"
+				DetailPrint "Visual C++ Install - Library not found"
+				DetailPrint "Visual C++ Install - Downloading Visualstudio 32-bit"
 				;inetc::get "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
 				NSISdl::download "https://aka.ms/vs/15/release/vc_redist.x64.exe" "$INSTDIR\vc_redist.x64.exe"
-				DetailPrint "Visualstudio 32-bit setup - Running"
+				DetailPrint "Visual C++ Install - Running Visualstudio 32-bit setup"
 				;ExecWait '$INSTDIR\vc_redist.x86.exe /s /v" /qn"'
-			${EndIf}   
-		${Else}
-		DetailPrint "VisualStudio DLLs are is installed."
-	${EndIf}
-		
+				DetailPrint "Visual C++ Install - library 64 bit is installed"
+				goto end_of_vcinstall ;
+			${EndIf}
+			${Else}
+			DetailPrint "Visual C++ Install - is already installed."			
+			goto end_of_vcinstall ;
+	${EndIf}   
+	
+	end_of_vcinstall:
+		DetailPrint "Visual C++ Install - Done"
+	
 SectionEnd
 
 
-Section /o "TEST - Open Audio Library" SectionInstallOpenal
+Section "Open Audio Library (if needed)" SectionInstallOpenal
 	
 	;This section installs Open Audio Library (if needed)
 	
 	;this section is required
-	;SectionIn RO
+	SectionIn RO
 	
-	DetailPrint "Open Audio Library - Detect Audio library"
+	DetailPrint "Open Audio Library Installation - Detect Audio library"
 	IfFileExists "$WINDIR\System32\OpenAL32.dll" oalsystem_found oalsystem_not_found
 	
 	oalsystem_found:
-		DetailPrint "Open Audio Library - Detected"
+		;if open library file is detected, installation of this library is not needed.
+		DetailPrint "Open Audio Library Installation - Library Detected"
+		DetailPrint "Open Audio Library Installation - Library installation not needed"
 		goto end_of_oalinstCheck ;
 	
 	oalsystem_not_found:
-	DetailPrint "Open Audio Library - Not Detected"
-	DetailPrint "Open Audio Library - Downloading"
-	NSISdl::download "https://www.openal.org/downloads/oalinst.zip" "$INSTDIR\oalinst.zip"
-	IfFileExists "$INSTDIR\oalinst.zip" oalinst_found oalinst_not_found
-	oalinst_found:
-		DetailPrint "Open Audio Library - Extract installer"
-		ZipDLL::extractall "$INSTDIR\oalinst.zip" "$INSTDIR"
-		DetailPrint "Open Audio Library - remove temp files"
-		Delete "$INSTDIR\oalinst.zip"
-		DetailPrint "Open Audio Library - running installation silent"
-		ExecWait '$INSTDIR\oalinst.exe /SILENT"'
-		Delete "$INSTDIR\oalinst.exe"
-        goto end_of_oalinstCheck ;
-	oalinst_not_found:
-		DetailPrint "Open Audio Library - not downloaded"
-		goto end_of_oalinstCheck ;
+		;if open library file is not detected, installation is needed.
+		DetailPrint "Open Audio Library Installation - Not Detected"
+		DetailPrint "Open Audio Library Installation - Library installation is needed"
+		DetailPrint "Open Audio Library Installation - Downloading setup"
+		NSISdl::download "https://www.openal.org/downloads/oalinst.zip" "$INSTDIR\oalinst.zip"
+		;check if the nsis downloader downloaded the file
+		IfFileExists "$INSTDIR\oalinst.zip" oalinst_found oalinst_not_found
+		oalinst_not_found:
+			DetailPrint "Open Audio Library Installation - not downloaded"
+			goto end_of_oalinstCheck ;
+		oalinst_found:
+			DetailPrint "Open Audio Library Installation - Extract installer"
+			ZipDLL::extractall "$INSTDIR\oalinst.zip" "$INSTDIR"
+			DetailPrint "Open Audio Library Installation - remove temp files"
+			Delete "$INSTDIR\oalinst.zip"
+			DetailPrint "Open Audio Library Installation - running installation silent"
+			ExecWait '$INSTDIR\oalinst.exe /SILENT"'
+			Delete "$INSTDIR\oalinst.exe"
+			goto end_of_oalinstCheck ;
+	
 	
 	end_of_oalinstCheck:
-		DetailPrint "Open Audio Library - done"
+		DetailPrint "Open Audio Library Installation - done"
 	
 SectionEnd
+
 
 
 
@@ -537,6 +563,6 @@ v20181125
  
 v20200415
 - Added feature that installs Open Audio Library
-- Repaired download urls 
+- Repaired urls 
 ================================
 */
