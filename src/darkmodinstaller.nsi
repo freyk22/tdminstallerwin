@@ -29,7 +29,7 @@ The following nsis plugins are needed for this script
 !define Updateronlinelocation "http://darkmod.taaaki.za.net/release/tdm_update_win.zip"
 
 !define InstallerName "${AppName} Installer"
-!define InstallerVersion "v20200415"
+!define InstallerVersion "v20200418"
 !define InstallerAuthor "Freek 'Freyk' Borgerink"
 !define InstallerFilename "TDM_installer.exe"
 !define UninstallerName "${AppName} Uninstaller"
@@ -94,9 +94,6 @@ VIAddVersionKey OriginalFilename "${InstallerFilename}"
 ;--------------------------------
 ;Pages
 
-
-;Customized objects and settings for some Pages
-
 ;Custom Installer Welcome page
 !define MUI_WELCOMEPAGE_TITLE "${AppName}"
 !define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for ${AppName}.$\n$\nThis application will create gamefolder and then install the updater for the game. $\n$\nAfter the installation, the updater will run to download the gamefiles.$\n$\nFor more information go to ${AppWebsite}$\n$\n$\n$\n${InstallerName} by Freek 'Freyk' Borgerink."
@@ -119,6 +116,9 @@ VIAddVersionKey OriginalFilename "${InstallerFilename}"
 DirText "This installer will install ${AppName} into the following folder.$\nTo install in a different folder, click Browse and select a different folder.$\nClick Install to begin the installation." \
   "Please specify the path of the game folder:"
 !insertmacro MUI_PAGE_DIRECTORY
+
+;Customized objects and settings for some Pages
+Page custom fnc_tdmversionselect_Show fnc_tdmversionselect_save
 
 ;Custom installer installerfiles page
 !define MUI_PROGRESSBAR smooth
@@ -190,12 +190,70 @@ Function fncUpdaterRun
 
 FunctionEnd
 
+; handle variables
+Var hCtl_tdmversionselect
+Var hCtl_tdmversionselect_GroupBox1
+Var hCtl_tdmversionselect_lDesc
+Var hCtl_tdmversionselect_DropList1
+
+; dialog create function
+Function fnc_tdmversionselect_Create
+  
+  ; === tdmversionselect (type: Dialog) ===
+  nsDialogs::Create 1018
+  Pop $hCtl_tdmversionselect
+  ${If} $hCtl_tdmversionselect == error
+    Abort
+  ${EndIf}
+  !insertmacro MUI_HEADER_TEXT "Version select" "Select which version of TDM you want to install"
+  
+  ; === GroupBox1 (type: GroupBox) ===
+  ${NSD_CreateGroupBox} 57.27u 14.77u 184.3u 98.46u "Version select"
+  Pop $hCtl_tdmversionselect_GroupBox1
+  
+  ; === lDesc (type: Label) ===
+  ${NSD_CreateLabel} 66.48u 44.31u 126.38u 17.85u "Select the version of The Dark Mod you want to install"
+  Pop $hCtl_tdmversionselect_lDesc
+  
+  ; === DropList1 (type: DropList) ===
+  ${NSD_CreateDropList} 66.48u 66.46u 126.38u 12.92u ""
+  Pop $hCtl_tdmversionselect_DropList1
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "Newest"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0.1"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0.2"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0.3"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0.4"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0.5"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0.6"
+  ${NSD_CB_AddString} $hCtl_tdmversionselect_DropList1 "2.0.7"
+  
+  ${NSD_CB_SelectString} $hCtl_tdmversionselect_DropList1 "Newest"
+  
+FunctionEnd
+
+; dialog show function
+Function fnc_tdmversionselect_Show
+  Call fnc_tdmversionselect_Create
+  nsDialogs::Show
+FunctionEnd
+
+Function fnc_tdmversionselect_save
+
+	Pop $hCtl_tdmversionselect_DropList1
+	${NSD_GetText} $hCtl_tdmversionselect_DropList1 $0
+	;messagebox mb_ok "Selected Text Item: $0"
+	StrCpy $2 $0
+	StrCpy $R0 $0
+
+FunctionEnd
+
 
 ;Section "The Dark mod (Updater and Gamefolder)" SectionUpdater
 Section "Gamefolder, updater and uninstaller" SectionUpdater
 	
 	;this section is requiered
-	SectionIn RO
+	;SectionIn RO
 
 	; Set output path is the installation directory.
 	SetOutPath $INSTDIR
@@ -222,11 +280,46 @@ Section "Gamefolder, updater and uninstaller" SectionUpdater
 	; Create uninstaller
 	WriteUninstaller "$INSTDIR\${UninstallerFilename}"
 
-
-	; Setting up TDM Updater	
-	;detect the updater
-	DetailPrint "TDMUpdatercheck - Detect"
-	IfFileExists $INSTDIR\tdm_update.exe tdmupdaterexec_found tdmupdaterexec_not_found	
+	
+	DetailPrint "Selected Text Item: $2"
+	StrCmp $2 'Newest' 0 +3
+		DetailPrint "recent going to install"
+		goto tdmupdaterdetect_start ;
+		
+	StrCmp $2 '2.0' 0 +3
+		DetailPrint "2.0 install - going to install"
+		DetailPrint "2.0 install - downloading 2.00 full"
+		NSISdl::download "https://ams2.dl.dbolical.com/dl/2013/10/10/THEDARKMODVersion2.0-StandaloneRelease.zip?st=3Fm-qJZ6yBrNIIskNQ83xA==&e=1587220577" "$INSTDIR\THEDARKMODVersion2.0-StandaloneRelease.zip"
+		DetailPrint "2.0 install - extracting 2.00 full"
+		ZipDLL::extractall "$INSTDIR\THEDARKMODVersion2.0-StandaloneRelease.zip" "$INSTDIR"
+		DetailPrint "2.0 install - deleting temporary file 2.0"
+		Delete "$INSTDIR\THEDARKMODVersion2.0-StandaloneRelease.zip"
+		goto end_of_UpdaterCheck ;	
+		
+		
+	StrCmp $2 '2.0.1' 0 +3
+		DetailPrint "2.01 install - going to install"
+		DetailPrint "2.01 install - downloading 2.00 full"
+		NSISdl::download "https://ams2.dl.dbolical.com/dl/2013/10/10/THEDARKMODVersion2.0-StandaloneRelease.zip?st=3Fm-qJZ6yBrNIIskNQ83xA==&e=1587220577" "$INSTDIR\THEDARKMODVersion2.0-StandaloneRelease.zip"
+		DetailPrint "2.01 install - extracting 2.00 full"
+		ZipDLL::extractall "$INSTDIR\THEDARKMODVersion2.0-StandaloneRelease.zip" "$INSTDIR"
+		DetailPrint "2.01 install - deleting temporary file 2.0"
+		Delete "$INSTDIR\THEDARKMODVersion2.0-StandaloneRelease.zip"
+		DetailPrint "2.01 install - downloading 2.00 to 2.01"
+		NSISdl::download "https://ams2.dl.dbolical.com/dl/2015/07/31/tdm_update_2.00_to_2.01.zip?st=4ub_Ow2dRSAIsle_25rlEA==&e=1587213549" "$INSTDIR\tdm_update_2.00_to_2.01.zip"
+		DetailPrint "2.01 install - going extract"
+		ZipDLL::extractall "$INSTDIR\tdm_update_2.00_to_2.01.zip" "$INSTDIR"
+		DetailPrint "2.01 install - deleting temporary file 2.0-2.01"
+		Delete "$INSTDIR\tdm_update_2.00_to_2.01.zip"
+		goto end_of_UpdaterCheck ;
+	
+	
+	
+	tdmupdaterdetect_start:
+		; Setting up TDM Updater	
+		;detect the updater
+		DetailPrint "TDMUpdatercheck - Detect"
+		IfFileExists $INSTDIR\tdm_update.exe tdmupdaterexec_found tdmupdaterexec_not_found	
 	
 	;if tdm updater executable found
 	tdmupdaterexec_found:
@@ -299,7 +392,7 @@ Section "Visual C++ Library (if needed)" SectionVCSInstall
 	;This section installs Visual C++ studio files (if needed)
 	
 	;this section is requiered
-	SectionIn RO
+	;SectionIn RO
 	
 	DetailPrint "Visual C++ Install - Detecting files"
 	
@@ -354,7 +447,7 @@ Section "Open Audio Library (if needed)" SectionInstallOpenal
 	;This section installs Open Audio Library (if needed)
 	
 	;this section is required
-	SectionIn RO
+	;SectionIn RO
 	
 	DetailPrint "Open Audio Library Installation - Detect Audio library"
 	IfFileExists "$WINDIR\System32\OpenAL32.dll" oalsystem_found oalsystem_not_found
@@ -408,9 +501,6 @@ Section /o "TEST - Add Shortcut in Steam" SectionInstallNonSteamGameShortcuts
 	ExecShell "open" "steam://AddNonSteamGame"
 	
 SectionEnd
-
-
-
 
 
 ;--------------------------------
@@ -564,5 +654,9 @@ v20181125
 v20200415
 - Added feature that installs Open Audio Library
 - Repaired urls 
+
+v20200418
+- Added feature that download specified tdm version from mirrrors.
+- added direct moddb mirror hosts for 2.0 and 2.01. 
 ================================
 */
