@@ -25,7 +25,7 @@ The following nsis plugins are needed for this script
 !define AppName "The Dark Mod"
 !define AppCreator "Broken Glass Studios"
 !define AppWebsite "http://www.thedarkmod.com"
-!define Appdir "$PROGRAMFILES64\darkmod"   ; "c:\games\darkmod" or "$PROGRAMFILES64\darkmod" or "$PROGRAMFILES\darkmod"
+!define Appdir "c:\games\darkmod"   ; "c:\games\darkmod" or "$PROGRAMFILES64\darkmod" or "$PROGRAMFILES\darkmod"
 !define Updateronlinelocation "http://darkmod.taaaki.za.net/release/tdm_update_win.zip1"
 
 !define InstallerName "Freyks ${AppName} Installer"
