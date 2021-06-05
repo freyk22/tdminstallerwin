@@ -47,6 +47,16 @@ END
 -- Versions --
 Changes / bugfixes
 
+v20210605
+- The darkmod created an official installer. But is has many limitations and its difficult to avoid starter problems.
+- So this installer is still needed.
+- Replaced the TDM updater binary with TDMs official installer binary.
+- because the limitations of that installer, added ShellExecAsUser to run tdms installer as a normal user.
+- replaced text labels to use installer instead of the updater.
+- changed download location
+- removed the version download feature, because the tdms installer can do this.
+- made some components optional.
+
 v20160731
 - Gammar fixes and additional text from teh_saccade.
   textlabel changes at pages: 

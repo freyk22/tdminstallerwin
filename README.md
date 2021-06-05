@@ -33,6 +33,16 @@ and run: C:\Program Files\NSIS\makensis.exe /X"SetCompressor /FINAL lzma" darkmo
 
 -- Changelog --
 
+v20210605
+- The darkmod created an official installer. But is has many limitations and its difficult to avoid starter problems.
+- So this installer is still needed.
+- Replaced the TDM updater binary with TDMs official installer binary.
+- because the limitations of that installer, added ShellExecAsUser to run tdms installer as a normal user.
+- replaced text labels to use installer instead of the updater.
+- changed download location
+- removed the version download feature, because the tdms installer can do this.
+- made some components optional.
+
 1.0.4 (20160313)
 - Changed the startmenu shortcut for the updater.
 - Added more info to welcometext
