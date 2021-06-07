@@ -354,7 +354,7 @@ Section /o "Visual C++ Library" SectionVCSInstall
 SectionEnd
 
 
-Section /o "Open Audio Library" SectionInstallOpenal
+Section /o "OpenAL Library" SectionInstallOpenal
 	
 	;This section installs Open Audio Library (if needed)
 	
@@ -447,7 +447,7 @@ SectionEnd
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsDesktop} "Desktop shortcuts"
 ;!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsAdmin} "Startmenu shortcuts with admin privileges"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionVCSInstall} "This installs required visual studio files (if needed)"
-!insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallOpenal} "This Installs Open Audio Library for 3D Audio"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallOpenal} "This installs OpenAL Library for 3D Audio"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallNonSteamGameShortcuts} "This creates shortcut in Steam to the game"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionTDM} "${AppName}"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
