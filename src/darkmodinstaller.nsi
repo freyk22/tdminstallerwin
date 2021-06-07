@@ -239,6 +239,7 @@ Section "Gamefolder, installer and uninstaller" SectionUpdater
 	ZipDLL::extractall "$INSTDIR\tdm_installer.exe.zip" "$INSTDIR"
 	DetailPrint "Deleting temporaries"
 	Delete "$INSTDIR\tdm_installer.exe.zip"
+	Delete "$INSTDIR\hash.txt"
 	goto tdmupdaterdetect_start		
 		
 	
