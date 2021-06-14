@@ -299,7 +299,7 @@ Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 
 SectionEnd
 
-
+/*
 Section /o "Visual C++ Library" SectionVCSInstall
 	
 	;This section installs Visual C++ studio files (if needed)
@@ -353,8 +353,8 @@ Section /o "Visual C++ Library" SectionVCSInstall
 		DetailPrint "Visual C++ Install - Done"
 	
 SectionEnd
-
-
+*/
+/*
 Section /o "OpenAL Library" SectionInstallOpenal
 	
 	;This section installs Open Audio Library (if needed)
@@ -397,7 +397,7 @@ Section /o "OpenAL Library" SectionInstallOpenal
 		DetailPrint "Open Audio Library Installation - done"
 	
 SectionEnd
-
+*/
 
 
 
