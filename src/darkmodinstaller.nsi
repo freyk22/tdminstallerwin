@@ -171,6 +171,11 @@ DirText "This installer will prepare ${AppName} in the following folder.$\nTo in
 
 Function .onInit
 
+	${IfNot} ${RunningX64}
+		MessageBox MB_OK "This installer does not support 32-bit Windows."
+		Abort
+	${EndIf}
+
 	/*
 	;detect if system is 64 bit and change default instdir
 	${If} ${RunningX64}
