@@ -28,7 +28,7 @@ The following nsis plugins are needed for this script
 !define Appdir "c:\games\darkmod"   ; "c:\games\darkmod" or "$PROGRAMFILES64\darkmod" or "$PROGRAMFILES\darkmod"
 !define Updateronlinelocation "http://darkmod.taaaki.za.net/release/tdm_update_win.zip1"
 
-!define InstallerName "Freyks ${AppName} Installer"
+!define InstallerName "Freyk's ${AppName} Installer"
 !define InstallerVersion "v20210506"
 !define InstallerAuthor "Freek 'Freyk' Borgerink"
 !define InstallerFilename "TDM_installer_by_freyk.exe"
@@ -97,13 +97,13 @@ VIAddVersionKey OriginalFilename "${InstallerFilename}"
 ;Custom Installer Welcome page
 !define MUI_WELCOMEPAGE_TITLE "${AppName}"
 ;!define MUI_WELCOMEPAGE_TEXT "Welcome to the installer for ${AppName}.$\n$\nThis application will create gamefolder and then install the updater for the game. $\n$\nAfter the installation, the updater will run to download the gamefiles.$\n$\nFor more information go to ${AppWebsite}$\n$\n$\n$\n${InstallerName} by Freek 'Freyk' Borgerink."
-!define MUI_WELCOMEPAGE_TEXT "Welcome to Freyks installer for ${AppName}.$\n$\nThis application will prepare the folder and filles for The Dark Mod gamefolder, following the normal standards. $\nAfter the preparation, the official TDM installer wil start and download the gamefiles. $\n$\nThis installer is created to avoid several starterproblems,$\nto run the game. $\nFor more information, go to ${AppWebsite}$\n$\n${InstallerName} by Freek 'Freyk' Borgerink."
+!define MUI_WELCOMEPAGE_TEXT "Welcome to Freyk's installer for ${AppName}.$\n$\nThis application will prepare the folder and files for The Dark Mod, following the normal standards. $\nAfter the preparation, the official TDM installer will start and download the game. $\n$\nThis installer is created to avoid several problems $\nrunning the game. $\nFor more information, go to ${AppWebsite}$\n$\n${InstallerName} by Freek 'Freyk' Borgerink."
 !insertmacro MUI_PAGE_WELCOME
 
 ;Custom Installer Licensepage
 !define MUI_PAGE_HEADER_TEXT "License Agreement"
 !define MUI_PAGE_HEADER_SUBTEXT "Please review the license agreement before installing ${AppName}."
-!define MUI_LICENSEPAGE_TEXT_BOTTOM "You must accept the agreement to install ${AppName}. Click I agree to continue" 
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "You must accept the agreement to install ${AppName}. Click I agree to continue." 
 !insertmacro MUI_PAGE_LICENSE "tdmsystemfiles\LICENSE.txt"
 
 ;Custom Components Page
@@ -128,10 +128,10 @@ DirText "This installer will prepare ${AppName} in the following folder.$\nTo in
 
 ;Custom Installer finishpage
 !define MUI_FINISHPAGE_TITLE "Completing ${Appname} Setup"
-!define MUI_FINISHPAGE_TEXT "This installer has prepared The darkmod gamefolder on your system.$\n$\nTo complete the installation, the required game files must now be downloaded, using the official TDM installer."
+!define MUI_FINISHPAGE_TEXT "This installer has prepared The darkmod game folder on your system.$\n$\nTo complete the installation, the required game files must now be downloaded, using the official TDM installer."
 !define MUI_FINISHPAGE_RUN
-;!define MUI_FINISHPAGE_RUN_TEXT "Launch The Dark Mod Installer. To download gamefiles automaticly"
-!define MUI_FINISHPAGE_RUN_TEXT "Download gamefiles automaticly, with TDM installer"
+;!define MUI_FINISHPAGE_RUN_TEXT "Launch The Dark Mod Installer. To download gamefiles automatically"
+!define MUI_FINISHPAGE_RUN_TEXT "Download game files with TDM installer"
 !define MUI_FINISHPAGE_RUN_CHECKED ;Checked checkbox to launch the updater
 !define MUI_FINISHPAGE_RUN_FUNCTION "fncUpdaterRun" ;execute function to run the updater
 ;!define MUI_PAGE_CUSTOMFUNCTION_LEAVE fncUpdaterRun
@@ -158,7 +158,7 @@ DirText "This installer will prepare ${AppName} in the following folder.$\nTo in
 
 ;Custom Uninstaller FINISHPAGE Page
 !define MUI_FINISHPAGE_TITLE "${AppName} Uninstaller"
-!define MUI_FINISHPAGE_TEXT "${AppName} has been succesfully removed.$\n$\nFor more information or news about ${AppName}, $\nvisit ${AppWebsite}"
+!define MUI_FINISHPAGE_TEXT "${AppName} has been successfully removed.$\n$\nFor more information or news about ${AppName}, $\nvisit ${AppWebsite}"
 !insertmacro MUI_UNPAGE_FINISH
 
 ;--------------------------------
@@ -170,6 +170,11 @@ DirText "This installer will prepare ${AppName} in the following folder.$\nTo in
 ;Installer Sections
 
 Function .onInit
+
+	${IfNot} ${RunningX64}
+		MessageBox MB_OK "This installer does not support 32-bit Windows."
+		Abort
+	${EndIf}
 
 	/*
 	;detect if system is 64 bit and change default instdir
@@ -234,11 +239,12 @@ Section "Gamefolder, installer and uninstaller" SectionUpdater
 
 	
 	; Downloading the official TDM Installer
-	DetailPrint "going to download official tdm installer"
+	DetailPrint "Going to download official tdm installer"
 	NSISdl::download "https://update.thedarkmod.com/zipsync/tdm_installer.exe.zip" "$INSTDIR\tdm_installer.exe.zip"
 	ZipDLL::extractall "$INSTDIR\tdm_installer.exe.zip" "$INSTDIR"
-	DetailPrint "deleting temporarys"
+	DetailPrint "Deleting temporaries"
 	Delete "$INSTDIR\tdm_installer.exe.zip"
+	Delete "$INSTDIR\hash.txt"
 	goto tdmupdaterdetect_start		
 		
 	
@@ -277,10 +283,10 @@ Section "Startmenu Shortcuts" SectionShortcuts
 	CreateShortCut "$SMPROGRAMS\${AppName}\AUTHORS.lnk" "$INSTDIR\AUTHORS.txt" "" "$INSTDIR\AUTHORS.txt" 0	
 	;CreateShortCut "$SMPROGRAMS\${AppName}\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" '--targetdir="$INSTDIR"' "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
 	CreateShortCut "$SMPROGRAMS\${AppName}\TDM installer.lnk" "$INSTDIR\tdm_installer.exe" "" "$INSTDIR\tdm_installer.exe" 0	
-	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
-	${If} ${RunningX64}
-		CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}-64bit.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
-	${EndIf}
+	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	;${If} ${RunningX64}
+	;	CreateShortCut "$SMPROGRAMS\${AppName}\${AppName}-64bit.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	;${EndIf}
   
 SectionEnd
 
@@ -290,15 +296,15 @@ Section /o "Desktop Shortcuts" SectionShortcutsDesktop
 
 	; create Desktop shortcuts for tdm
 	;CreateShortCut "$DESKTOP\${AppName} Updater.lnk" "$INSTDIR\tdm_update.exe" '--targetdir="$INSTDIR"' "$INSTDIR\darkmod.ico" 0 SW_SHOWNORMAL "" ""
-	CreateShortCut "$DESKTOP\${AppName}.lnk" "$INSTDIR\TheDarkMod.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	CreateShortCut "$DESKTOP\${AppName}.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
 	; create Desktop shortcuts for tdm 64 bit
-	${If} ${RunningX64}
-		CreateShortCut "$DESKTOP\${AppName}-64bit.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
-	${EndIf}  
+	;${If} ${RunningX64}
+	;	CreateShortCut "$DESKTOP\${AppName}-64bit.lnk" "$INSTDIR\TheDarkModx64.exe" "" "$INSTDIR\TDM_icon.ico" 0 SW_SHOWNORMAL "" ""
+	;${EndIf}  
 
 SectionEnd
 
-
+/*
 Section /o "Visual C++ Library" SectionVCSInstall
 	
 	;This section installs Visual C++ studio files (if needed)
@@ -352,9 +358,9 @@ Section /o "Visual C++ Library" SectionVCSInstall
 		DetailPrint "Visual C++ Install - Done"
 	
 SectionEnd
-
-
-Section /o "Open Audio Library" SectionInstallOpenal
+*/
+/*
+Section /o "OpenAL Library" SectionInstallOpenal
 	
 	;This section installs Open Audio Library (if needed)
 	
@@ -396,7 +402,7 @@ Section /o "Open Audio Library" SectionInstallOpenal
 		DetailPrint "Open Audio Library Installation - done"
 	
 SectionEnd
-
+*/
 
 
 
@@ -442,12 +448,12 @@ SectionEnd
 
 ;Component Description
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-!insertmacro MUI_DESCRIPTION_TEXT ${SectionUpdater} "The Gamefolder and the TDM updater. The updater is required for downloading/updating the required game files."
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionUpdater} "The Gamefolder and the TDM updater. The updater is required for downloading/updating the game files."
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcuts} "Start menu shortcuts"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsDesktop} "Desktop shortcuts"
 ;!insertmacro MUI_DESCRIPTION_TEXT ${SectionShortcutsAdmin} "Startmenu shortcuts with admin privileges"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionVCSInstall} "This installs required visual studio files (if needed)"
-!insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallOpenal} "This Installs Open Audio Library for 3D Audio"
+!insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallOpenal} "This installs OpenAL Library for 3D Audio"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionInstallNonSteamGameShortcuts} "This creates shortcut in Steam to the game"
 !insertmacro MUI_DESCRIPTION_TEXT ${SectionTDM} "${AppName}"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
